@@ -278,3 +278,322 @@
     </script>
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="am">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KENO GAME</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 10px;
+        }
+        h2 { color: #00e676; margin: 5px 0; }
+        p { font-size: 13px; color: #b0bec5; margin: 5px 0; }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 4px;
+            max-width: 400px;
+            margin: 10px auto;
+        }
+        .cell {
+            background-color: #1e293b;
+            color: #ffffff;
+            border: none;
+            padding: 8px 0;
+            font-size: 13px;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .cell.selected {
+            background-color: #00e676;
+            color: #121212;
+        }
+        .cell.drawn {
+            background-color: #ff9800;
+            color: #121212;
+        }
+        .cell.matched {
+            background-color: #e91e63;
+            color: #ffffff;
+        }
+        .controls {
+            margin: 10px 0;
+        }
+        .bet-box {
+            display: inline-flex;
+            align-items: center;
+            background: #1e293b;
+            border-radius: 5px;
+            padding: 5px 15px;
+        }
+        .bet-box button {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0 10px;
+        }
+        .bet-btn {
+            background-color: #00e676;
+            color: #121212;
+            border: none;
+            width: 100%;
+            max-width: 400px;
+            padding: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+        .info-panel {
+            max-width: 400px;
+            margin: 10px auto;
+            background: #1e293b;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .history-panel {
+            max-width: 400px;
+            margin: 10px auto;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            text-align: left;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>🎰 KENO GAME</h2>
+    <p>Choose up to 10 numbers (From 1 to 80)</p>
+
+    <div class="grid" id="keno-grid"></div>
+
+    <div class="controls">
+        <div class="bet-box">
+            <button onclick="changeBet(-5)">-</button>
+            <span id="bet-amount" style="font-size: 18px; font-weight: bold; margin: 0 15px;">10 ETB</span>
+            <button onclick="changeBet(5)">+</button>
+        </div>
+    </div>
+
+    <button class="bet-btn" id="bet-button" onclick="startDraw()">BET</button>
+
+    <div class="info-panel">
+        <div>የመረጧቸው ቁጥሮች (<span id="selected-count">0</span>/10):</div>
+        <div id="selected-list" style="color: #00e676; font-weight: bold; margin: 3px 0; font-size: 13px;">ምንም አልተመረጠም</div>
+        <div id="status-text" style="color: #ffeb3b; margin-top: 5px; font-weight: bold;">ጨዋታ ለመጀመር ቁጥሮችን ይምረጡ</div>
+    </div>
+
+    <div style="text-align: center; color: #fff; margin: 10px 0; font-size: 18px; font-weight: bold;">
+        ቀሪ ሒሳብ: <span id="user-balance" style="color: #4CAF50;">50.00</span> ብር
+    </div>
+
+    <div class="history-panel">
+        <div style="font-weight: bold; color: #ff9800; margin-bottom: 4px;">📜 የጨዋታ ታሪክ (History):</div>
+        <div id="history-content" style="color: #b0bec5;">እስካሁን የተደረገ ጨዋታ የለም</div>
+    </div>
+
+    <script>
+        // LocalStorage በመጠቀም ባላንስ እና መረጃዎችን ማስቀመጥ (ቦቱ ቢዘጋም እንዳይጠፉ)
+        let balance = localStorage.getItem('keno_balance') ? parseFloat(localStorage.getItem('keno_balance')) : 50.00;
+        let bet = 10;
+        let selectedNumbers = [];
+        let winningNumbers = [];
+        let isPlaying = false;
+        let gameHistory = JSON.parse(localStorage.getItem('keno_history')) || [];
+
+        const gridEl = document.getElementById('keno-grid');
+        const balanceEl = document.getElementById('user-balance');
+        const betAmountEl = document.getElementById('bet-amount');
+        const selectedCountEl = document.getElementById('selected-count');
+        const selectedListEl = document.getElementById('selected-list');
+        const statusTextEl = document.getElementById('status-text');
+        const betBtnEl = document.getElementById('bet-button');
+        const historyContentEl = document.getElementById('history-content');
+
+        balanceEl.innerText = balance.toFixed(2);
+        updateHistoryUI();
+
+        // 80 ቁጥሮችን መፍጠር
+        for (let i = 1; i <= 80; i++) {
+            const btn = document.createElement('button');
+            btn.className = 'cell';
+            btn.innerText = i;
+            btn.onclick = () => toggleNumber(i, btn);
+            gridEl.appendChild(btn);
+        }
+
+        function toggleNumber(num, btn) {
+            if (isPlaying) {
+                statusTextEl.innerText = "⚠️ ቆጠራ ላይ እያለ ቁጥር መቀየር አይቻልም!";
+                return;
+            }
+            
+            const index = selectedNumbers.indexOf(num);
+            if (index > -1) {
+                selectedNumbers.splice(index, 1);
+                btn.classList.remove('selected');
+            } else {
+                if (selectedNumbers.length >= 10) {
+                    statusTextEl.innerText = "⚠️ ከ 10 በላይ ቁጥሮች መምረጥ አይችሉም!";
+                    return;
+                }
+                selectedNumbers.push(num);
+                btn.classList.add('selected');
+            }
+            selectedNumbers.sort((a, b) => a - b);
+            selectedCountEl.innerText = selectedNumbers.length;
+            selectedListEl.innerText = selectedNumbers.length > 0 ? selectedNumbers.join(', ') : "ምንም አልተመረጠም";
+            if (selectedNumbers.length > 0) {
+                statusTextEl.innerText = "ቁጥሮች ተመርጠዋል! BET የሚለውን ይጫኑ";
+            }
+        }
+
+        function changeBet(amount) {
+            if (isPlaying) return;
+            bet += amount;
+            if (bet < 5) bet = 5;
+            if (bet > balance) bet = balance;
+            betAmountEl.innerText = bet + " ETB";
+        }
+
+        function startDraw() {
+            if (isPlaying) return;
+            if (selectedNumbers.length === 0) {
+                statusTextEl.innerText = "⚠️ እባክዎ ቢያንስ አንድ ቁጥር ይምረጡ!";
+                return;
+            }
+            if (balance < bet) {
+                statusTextEl.innerText = "⚠️ የቂሪ ሒሳብዎ በቂ አይደለም!";
+                return;
+            }
+
+            clearDrawnNumbers();
+
+            balance -= bet;
+            balanceEl.innerText = balance.toFixed(2);
+            saveData();
+
+            isPlaying = true;
+            betBtnEl.disabled = true;
+            betBtnEl.style.opacity = "0.5";
+
+            let countdown = 30;
+            statusTextEl.innerText = `⏳ እጣ ለመውጣት ${countdown} ሰኮንድ ይቀረዋል...`;
+
+            let timer = setInterval(() => {
+                countdown--;
+                if (countdown > 0) {
+                    statusTextEl.innerText = `⏳ እጣ ለመውጣት ${countdown} ሰኮንድ ይቀረዋል...`;
+                } else {
+                    clearInterval(timer);
+                    runDrawProcess();
+                }
+            }, 1000);
+        }
+
+        function runDrawProcess() {
+            statusTextEl.innerText = "🎲 እጣ እየወጣ ነው...";
+            winningNumbers = [];
+
+            while (winningNumbers.length < 20) {
+                let rand = Math.floor(Math.random() * 80) + 1;
+                if (!winningNumbers.includes(rand)) {
+                    winningNumbers.push(rand);
+                }
+            }
+
+            const cells = gridEl.getElementsByClassName('cell');
+            for (let cell of cells) {
+                let num = parseInt(cell.innerText);
+                if (winningNumbers.includes(num)) {
+                    if (selectedNumbers.includes(num)) {
+                        cell.classList.add('matched');
+                    } else {
+                        cell.classList.add('drawn');
+                    }
+                }
+            }
+
+            let matches = selectedNumbers.filter(n => winningNumbers.includes(n)).length;
+            let winAmount = 0;
+
+            if (matches >= 3) {
+                winAmount = bet * matches * 1.5;
+            } else if (matches === 2) {
+                winAmount = bet * 1.2;
+            }
+
+            if (winAmount > 0) {
+                balance += winAmount;
+                statusTextEl.innerText = `🎉 እንኳን ደስ አሎት! ${matches} ቁጥር ገጥመዋል (+${winAmount.toFixed(2)} ብር)`;
+            } else {
+                statusTextEl.innerText = `😢 አሳዛኝ ነው! ${matches} ቁጥር ብቻ ገጥመዋል።`;
+            }
+
+            balanceEl.innerText = balance.toFixed(2);
+            saveData();
+
+            // ታሪክ ውስጥ መጨመር
+            let historyItem = `ዙር: ${matches} ቁጥር ገጥሟል | ሽልማት: +${winAmount.toFixed(2)} ብር`;
+            gameHistory.unshift(historyItem);
+            if (gameHistory.length > 5) gameHistory.pop(); // የመጨረሻዎቹን 5 ብቻ መያዝ
+            localStorage.setItem('keno_history', JSON.stringify(gameHistory));
+            updateHistoryUI();
+
+            setTimeout(() => {
+                resetGame();
+            }, 5000);
+        }
+
+        function clearDrawnNumbers() {
+            const cells = gridEl.getElementsByClassName('cell');
+            for (let cell of cells) {
+                cell.classList.remove('drawn', 'matched');
+            }
+        }
+
+        function resetGame() {
+            isPlaying = false;
+            betBtnEl.disabled = false;
+            betBtnEl.style.opacity = "1";
+            winningNumbers = [];
+            selectedNumbers = [];
+            selectedCountEl.innerText = "0";
+            selectedListEl.innerText = "ምንም አልተመረጠም";
+            
+            const cells = gridEl.getElementsByClassName('cell');
+            for (let cell of cells) {
+                cell.classList.remove('selected', 'drawn', 'matched');
+            }
+            statusTextEl.innerText = "አዲስ ዙር ለመጀመር ቁጥሮችን ይምረጡ";
+        }
+
+        function saveData() {
+            localStorage.setItem('keno_balance', balance);
+        }
+
+        function updateHistoryUI() {
+            if (gameHistory.length > 0) {
+                historyContentEl.innerHTML = gameHistory.map(h => `<div>• ${h}</div>`).join('');
+            }
+        }
+    </script>
+</body>
+    </html>
