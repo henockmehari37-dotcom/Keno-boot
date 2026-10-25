@@ -3,173 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Keno Game Mini App</title>
+    <title>KENO GAME</title>
     <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        body {
-            background-color: #12181f;
-            color: #ffffff;
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 15px;
-            text-align: center;
-        }
-        .header {
-            font-size: 20px;
-            font-weight: bold;
-            color: #00ff88;
-            margin-bottom: 5px;
-        }
-        .sub-header {
-            font-size: 14px;
-            color: #a0aab5;
-            margin-bottom: 15px;
-        }
-        /* 1-80 Grid System */
-        .grid-container {
-            display: grid;
-            grid-template-columns: repeat(10, 1fr);
-            gap: 5px;
-            max-width: 400px;
-            margin: 0 auto;
-        }
-        .number-btn {
-            background-color: #1e2936;
-            border: 1px solid #2d3f52;
-            color: #ffffff;
-            padding: 10px 0;
-            border-radius: 5px;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .number-btn.selected {
-            background-color: #00c853;
-            border-color: #00e676;
-            color: #000;
-        }
-        /* Controls */
-        .controls {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 15px;
-            margin: 20px 0;
-        }
-        .stake-btn {
-            background-color: #2b394a;
-            color: white;
-            border: none;
-            width: 40px;
-            height: 40px;
-            font-size: 20px;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-        .stake-display {
-            font-size: 18px;
-            font-weight: bold;
-        }
-        /* BET Button */
-        .bet-btn {
-            background-color: #00c853;
-            color: white;
-            border: none;
-            width: 100%;
-            max-width: 400px;
-            padding: 15px;
-            font-size: 20px;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0, 200, 83, 0.3);
-        }
-        .bet-btn:disabled {
-            background-color: #445466;
-            box-shadow: none;
-        }
-    </style>
-</head>
-<body>
-
-    <div class="header">🎰 KENO GAME</div>
-    <div class="sub-header">Choose up to 10 numbers (From 1 to 80)</div>
-
-    <!-- Numbers Grid -->
-    <div class="grid-container" id="grid"></div>
-
-    <!-- Stake Controls -->
-    <div class="controls">
-        <button class="stake-btn" onclick="changeStake(-5)">-</button>
-        <span class="stake-display" id="stake-val">10 ETB</span>
-        <button class="stake-btn" onclick="changeStake(5)">+</button>
-    </div>
-
-    <!-- BET Button -->
-    <button class="bet-btn" id="bet-btn" onclick="placeBet()" disabled>BET</button>
-
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand(); // Make it full screen in Telegram
-
-        let selectedNumbers = [];
-        let currentStake = 10;
-        const grid = document.getElementById('grid');
-        const betBtn = document.getElementById('bet-btn');
-
-        // Create 1-80 Grid
-        for (let i = 1; i <= 80; i++) {
-            let btn = document.createElement('button');
-            btn.className = 'number-btn';
-            btn.innerText = i;
-            btn.onclick = () => toggleSelect(i, btn);
-            grid.appendChild(btn);
-        }
-
-        function toggleSelect(num, btnElement) {
-            if (selectedNumbers.includes(num)) {
-                selectedNumbers = selectedNumbers.filter(n => n !== num);
-                btnElement.classList.remove('selected');
-            } else {
-                if (selectedNumbers.length < 10) {
-                    selectedNumbers.push(num);
-                    btnElement.classList.add('selected');
-                } else {
-                    tg.showAlert("ከ 10 ቁጥር በላይ መምረጥ አይችሉም!");
-                }
-            }
-            betBtn.disabled = selectedNumbers.length === 0;
-        }
-
-        function changeStake(val) {
-            if (currentStake + val >= 5) {
-                currentStake += val;
-                document.getElementById('stake-val').innerText = currentStake + " ETB";
-            }
-        }
-
-        function placeBet() {
-            const data = {
-                numbers: selectedNumbers,
-                stake: currentStake
-            };
-            // Send data back to Telegram Bot backend
-            tg.sendData(JSON.stringify(data));
-        }
-    </script>
-</body>
-</html>
-<div style="text-align: center; color: #fff; margin: 10px 0; font-size: 16px; font-weight: bold;">
-    ቀሪ ሂሳብ: <span id="user-balance" style="color: #4CAF50;">50.00</span> ብር
-</div>
-<!DOCTYPE html>
-<html lang="am">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KENO GAME</title>
     <style>
         body {
             background-color: #121212;
@@ -178,13 +14,14 @@
             text-align: center;
             margin: 0;
             padding: 10px;
+            user-select: none;
         }
         h2 { color: #00e676; margin: 5px 0; }
-        p { font-size: 14px; color: #b0bec5; margin: 5px 0; }
+        p { font-size: 13px; color: #b0bec5; margin: 5px 0; }
         .grid {
             display: grid;
             grid-template-columns: repeat(10, 1fr);
-            gap: 5px;
+            gap: 4px;
             max-width: 400px;
             margin: 10px auto;
         }
@@ -192,8 +29,8 @@
             background-color: #1e293b;
             color: #ffffff;
             border: none;
-            padding: 10px 0;
-            font-size: 14px;
+            padding: 8px 0;
+            font-size: 13px;
             font-weight: bold;
             border-radius: 4px;
             cursor: pointer;
@@ -206,8 +43,12 @@
             background-color: #ff9800;
             color: #121212;
         }
+        .cell.matched {
+            background-color: #e91e63;
+            color: #ffffff;
+        }
         .controls {
-            margin: 15px 0;
+            margin: 10px 0;
         }
         .bet-box {
             display: inline-flex;
@@ -235,7 +76,7 @@
             font-weight: bold;
             border-radius: 8px;
             cursor: pointer;
-            margin-top: 10px;
+            margin-top: 5px;
         }
         .info-panel {
             max-width: 400px;
@@ -256,24 +97,30 @@
 
     <div class="controls">
         <div class="bet-box">
-            <button onclick="changeBet(-5)">-</button>
+            <button type="button" onclick="changeBet(-5)">-</button>
             <span id="bet-amount" style="font-size: 18px; font-weight: bold; margin: 0 15px;">10 ETB</span>
-            <button onclick="changeBet(5)">+</button>
+            <button type="button" onclick="changeBet(5)">+</button>
         </div>
     </div>
 
-    <button class="bet-btn" id="bet-button" onclick="startDraw()">BET</button>
+    <button type="button" class="bet-btn" id="bet-button" onclick="startDraw()">BET</button>
 
     <div class="info-panel">
         <div>የመረጧቸው ቁጥሮች: <span id="selected-count">0</span>/10</div>
-        <div id="status-text" style="color: #ffeb3b; margin-top: 5px;">ጨዋታ ለመጀመር ቁጥሮችን ይምረጡ</div>
+        <div id="status-text" style="color: #ffeb3b; margin-top: 5px; font-weight: bold;">ጨዋታ ለመጀመር ቁጥሮችን ይምረጡ</div>
     </div>
 
-    <div style="text-align: center; color: #fff; margin: 15px 0; font-size: 18px; font-weight: bold;">
+    <div style="text-align: center; color: #fff; margin: 10px 0; font-size: 18px; font-weight: bold;">
         ቀሪ ሒሳብ: <span id="user-balance" style="color: #4CAF50;">50.00</span> ብር
     </div>
 
     <script>
+        // Telegram WebApp ዝግጅት
+        if (window.Telegram && window.Telegram.WebApp) {
+            window.Telegram.WebApp.ready();
+            window.Telegram.WebApp.expand(); // በሙሉ ስክሪን እንዲከፈት
+        }
+
         let balance = 50.00;
         let bet = 10;
         let selectedNumbers = [];
@@ -290,9 +137,13 @@
         // 80 ቁጥሮችን መፍጠር
         for (let i = 1; i <= 80; i++) {
             const btn = document.createElement('button');
+            btn.type = 'button';
             btn.className = 'cell';
             btn.innerText = i;
-            btn.onclick = () => toggleNumber(i, btn);
+            btn.onclick = (e) => {
+                e.preventDefault();
+                toggleNumber(i, btn);
+            };
             gridEl.appendChild(btn);
         }
 
@@ -305,13 +156,16 @@
                 btn.classList.remove('selected');
             } else {
                 if (selectedNumbers.length >= 10) {
-                    alert("ከ 10 በላይ ቁጥሮች መምረጥ አይችሉም!");
+                    statusTextEl.innerText = "⚠️ ከ 10 በላይ ቁጥሮች መምረጥ አይችሉም!";
                     return;
                 }
                 selectedNumbers.push(num);
                 btn.classList.add('selected');
             }
             selectedCountEl.innerText = selectedNumbers.length;
+            if(selectedNumbers.length > 0) {
+                statusTextEl.innerText = "ቁጥሮች ተመርጠዋል! BET የሚለውን ይጫኑ";
+            }
         }
 
         function changeBet(amount) {
@@ -325,13 +179,16 @@
         function startDraw() {
             if (isPlaying) return;
             if (selectedNumbers.length === 0) {
-                alert("እባክዎ ቢያንስ አንድ ቁጥር ይምረጡ!");
+                statusTextEl.innerText = "⚠️ እባክዎ ቢያንስ አንድ ቁጥር ይምረጡ!";
                 return;
             }
             if (balance < bet) {
-                alert("የቂሪ ሒሳብዎ በቂ አይደለም!");
+                statusTextEl.innerText = "⚠️ የቂሪ ሒሳብዎ በቂ አይደለም!";
                 return;
             }
+
+            // ቦርዱን ማፅዳት
+            clearDrawnNumbers();
 
             // ውርርድ ሲጀመር ከባላንስ መቀነስ
             balance -= bet;
@@ -341,12 +198,12 @@
             betBtnEl.style.opacity = "0.5";
 
             let countdown = 30;
-            statusTextEl.innerText = `እጣ ለመውጣት ${countdown} ሰኮንድ ይቀረዋል...`;
+            statusTextEl.innerText = `⏳ እጣ ለመውጣት ${countdown} ሰኮንድ ይቀረዋል...`;
 
             let timer = setInterval(() => {
                 countdown--;
                 if (countdown > 0) {
-                    statusTextEl.innerText = `እጣ ለመውጣት ${countdown} ሰኮንድ ይቀረዋል...`;
+                    statusTextEl.innerText = `⏳ እጣ ለመውጣት ${countdown} ሰኮንድ ይቀረዋል...`;
                 } else {
                     clearInterval(timer);
                     runDrawProcess();
@@ -355,10 +212,10 @@
         }
 
         function runDrawProcess() {
-            statusTextEl.innerText = "እጣ እየወጣ ነው...";
+            statusTextEl.innerText = "🎲 እጣ እየወጣ ነው...";
             winningNumbers = [];
 
-            // 20 የተለዩ ቁጥሮችን ከ 1 እስከ 80 ማውጣት
+            // 20 የተለዩ ቁጥሮችን ማውጣት
             while (winningNumbers.length < 20) {
                 let rand = Math.floor(Math.random() * 80) + 1;
                 if (!winningNumbers.includes(rand)) {
@@ -371,15 +228,18 @@
             for (let cell of cells) {
                 let num = parseInt(cell.innerText);
                 if (winningNumbers.includes(num)) {
-                    cell.classList.add('drawn');
+                    if (selectedNumbers.includes(num)) {
+                        cell.classList.add('matched'); // የገጠመ ቁጥር
+                    } else {
+                        cell.classList.add('drawn'); // የወጣ እጣ
+                    }
                 }
             }
 
-            // ግጥሚያዎችን (Matches) መቁጠር
+            // ግጥሚያዎችን መቁጠር
             let matches = selectedNumbers.filter(n => winningNumbers.includes(n)).length;
             let winAmount = 0;
 
-            // ቀላል የሽልማት ሰንጠረዥ (Payout Logic)
             if (matches >= 3) {
                 winAmount = bet * matches * 1.5;
             } else if (matches === 2) {
@@ -388,17 +248,24 @@
 
             if (winAmount > 0) {
                 balance += winAmount;
-                statusTextEl.innerText = `እንኳን ደስ አሎት! ${matches} ቁጥር ገጥመዋል (+${winAmount.toFixed(2)} ብር)`;
+                statusTextEl.innerText = `🎉 እንኳን ደስ አሎት! ${matches} ቁጥር ገጥመዋል (+${winAmount.toFixed(2)} ብር)`;
             } else {
-                statusTextEl.innerText = `አሳዛኝ ነው! ${matches} ቁጥር ብቻ ገጥመዋል።`;
+                statusTextEl.innerText = `😢 አሳዛኝ ነው! ${matches} ቁጥር ብቻ ገጥመዋል።`;
             }
 
             balanceEl.innerText = balance.toFixed(2);
 
-            // ከጥቂት ሰኮንዶች በኋላ ጨዋታውን ማደስ (Reset)
+            // ከ 5 ሰኮንድ በኋላ ጨዋታውን ለቀጣይ ዙር ማዘጋጀት
             setTimeout(() => {
                 resetGame();
-            }, 6000);
+            }, 5000);
+        }
+
+        function clearDrawnNumbers() {
+            const cells = gridEl.getElementsByClassName('cell');
+            for (let cell of cells) {
+                cell.classList.remove('drawn', 'matched');
+            }
         }
 
         function resetGame() {
@@ -406,13 +273,8 @@
             betBtnEl.disabled = false;
             betBtnEl.style.opacity = "1";
             winningNumbers = [];
-            
-            const cells = gridEl.getElementsByClassName('cell');
-            for (let cell of cells) {
-                cell.classList.remove('drawn');
-            }
             statusTextEl.innerText = "አዲስ ዙር ለመጀመር ቁጥሮችን ይምረጡ";
         }
     </script>
 </body>
-    </html>
+</html>
