@@ -53,7 +53,6 @@
         }
         .banner span { color: #ffffff; font-weight: bold; }
 
-        /* 80 Grid Styling - Fixed Position */
         .grid {
             display: grid;
             grid-template-columns: repeat(10, 1fr);
@@ -226,10 +225,9 @@
     <!-- VIEW 1: GAME -->
     <div id="view-game" class="view-container active">
         <div class="banner">
-            Choose 10 numbers | የተመረጡ: <span id="selected-count" style="color:#00ff88;">0</span>/10 | ቲኬት: <span id="ticket-qty" style="color:#fff;">1</span>/20
+            Choose 1 to 10 numbers | የተመረጡ: <span id="selected-count" style="color:#00ff88;">0</span>/10 | ቲኬት: <span id="ticket-qty" style="color:#fff;">1</span>/20
         </div>
 
-        <!-- 80 Numbers Grid Board -->
         <div class="grid" id="keno-grid"></div>
 
         <div class="controls-row">
@@ -246,7 +244,7 @@
         <button class="bet-btn" id="bet-button" onclick="placeBet()">ቲኬቱን አስገባ (BET)</button>
 
         <div id="status-text" style="background:#121b26; border:1px solid #1e293b; padding:7px; border-radius:8px; margin-top:4px; font-size:11px; color: #f59e0b; font-weight: bold;">
-            10 ቁጥሮችን ይምረጡ እና BET ይጫኑ
+            ቁጥሮችን ይምረጡ እና BET ይጫኑ
         </div>
     </div>
 
@@ -306,7 +304,6 @@
         balanceEl.innerText = balance.toFixed(2);
         renderHistoryAndResults();
 
-        // 80 Grid buttons generation
         for (let i = 1; i <= 80; i++) {
             const btn = document.createElement('button');
             btn.className = 'cell';
@@ -315,7 +312,7 @@
             gridEl.appendChild(btn);
         }
 
-        // Continuous Timer
+        // Continuous Timer - ቆጠራው ሁልጊዜም ይሰራል፣ በቆጠራው መሀልም BET ማድረግ ይቻላል
         setInterval(() => {
             if (!isDrawing) {
                 countdown--;
@@ -343,7 +340,7 @@
                 btn.classList.remove('selected');
             } else {
                 if (selectedNumbers.length >= 10) {
-                    statusTextEl.innerText = "⚠️ በትክክል 10 ቁጥሮች ብቻ መምረጥ ይቻላል!";
+                    statusTextEl.innerText = "⚠️ እስከ 10 ቁጥሮች ብቻ መምረጥ ይቻላል!";
                     return;
                 }
                 selectedNumbers.push(num);
@@ -351,7 +348,7 @@
             }
             selectedNumbers.sort((a, b) => a - b);
             selectedCountEl.innerText = selectedNumbers.length;
-            statusTextEl.innerText = selectedNumbers.length === 10 ? "10 ቁጥሮች ተመርጠዋል!" : `እባክዎ 10 ቁጥሮች ይምረጡ (${selectedCountEl.innerText}/10)`;
+            statusTextEl.innerText = selectedNumbers.length > 0 ? "ቁጥሮች ተመርጠዋል! BET ይጫኑ" : "ቁጥሮችን ይምረጡ";
         }
 
         function changeTickets(amount) {
@@ -375,7 +372,7 @@
             for (let cell of cells) {
                 if (selectedNumbers.includes(parseInt(cell.innerText))) cell.classList.add('selected');
             }
-            statusTextEl.innerText = "🎲 10 ቁጥሮች በ Quick Pick ተመርጠዋል!";
+            statusTextEl.innerText = "🎲 Quick Pick ተሳክቷል!";
         }
 
         function clearSelection() {
@@ -386,7 +383,7 @@
             ticketQtyEl.innerText = "1";
             const cells = gridEl.getElementsByClassName('cell');
             for (let cell of cells) cell.classList.remove('selected', 'drawn', 'matched');
-            statusTextEl.innerText = "አዲስ ቲኬት ለመምረጥ 10 ቁጥሮችን ይምረጡ";
+            statusTextEl.innerText = "ቁጥሮችን ይምረጡ";
         }
 
         function changeBet(amount) {
@@ -398,8 +395,8 @@
         }
 
         function placeBet() {
-            if (selectedNumbers.length !== 10) {
-                statusTextEl.innerText = "⚠️ እባክዎ በትክክል 10 ቁጥሮች ይምረጡ!";
+            if (selectedNumbers.length === 0) {
+                statusTextEl.innerText = "⚠️ እባክዎ ቢያንስ 1 ቁጥር ይምረጡ!";
                 return;
             }
             let totalCost = bet * ticketQty;
@@ -418,7 +415,7 @@
                 qty: ticketQty
             });
 
-            statusTextEl.innerHTML = `✅ ቲኬትዎ ተመዝግቧል! (ቀጣይ ዙር እስኪወጣ ይጠብቁ)`;
+            statusTextEl.innerHTML = `✅ ቲኬትዎ ተመዝግቧል! (ቀጣይ ዙር ይጠብቁ)`;
             clearSelection();
         }
 
@@ -505,7 +502,7 @@
                 activeTickets = [];
                 isDrawing = false;
                 countdown = 30;
-                statusTextEl.innerText = "አዲስ ዙር ጀምሯል! 10 ቁጥሮችን ይምረጡ";
+                statusTextEl.innerText = "አዲስ ዙር ጀምሯል! ቁጥሮችን ይምረጡ";
             }, 4000);
         }
 
