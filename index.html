@@ -147,7 +147,6 @@
         }
         .bet-btn:disabled { background: #1e293b; color: #64748b; cursor: not-allowed; }
 
-        /* Views Container (Game / History / Results / Stats) */
         .view-container {
             max-width: 440px;
             margin: 6px auto;
@@ -157,7 +156,6 @@
             display: block;
         }
 
-        /* Ticket / History Cards (Like Screenshot) */
         .ticket-card {
             background: #121b26;
             border: 1px solid #1e293b;
@@ -197,7 +195,6 @@
             padding-top: 6px;
         }
 
-        /* Bottom Nav Bar */
         .bottom-nav {
             max-width: 440px;
             margin: 8px auto 0 auto;
@@ -226,7 +223,7 @@
     <!-- VIEW 1: GAME -->
     <div id="view-game" class="view-container active">
         <div class="banner">
-            Choose up to 10 numbers | የተመረጡ: <span id="selected-count" style="color:#00ff88;">0</span>/10
+            Choose up to 20 numbers | የተመረጡ: <span id="selected-count" style="color:#00ff88;">0</span>/20
         </div>
 
         <div class="grid" id="keno-grid"></div>
@@ -237,14 +234,14 @@
                 <span id="bet-amount" style="font-size: 15px; font-weight: bold; color: #00ff88;">10 ETB</span>
                 <button class="bet-ctrl-btn" onclick="changeBet(5)">+</button>
             </div>
-            <button class="quick-btn" onclick="quickPick()">🎲 Quick</button>
+            <button class="quick-btn" onclick="quickPick()">🎲 Quick (20)</button>
             <button class="quick-btn" onclick="clearSelection()" style="color: #ef4444;">🗑️ Clear</button>
         </div>
 
         <button class="bet-btn" id="bet-button" onclick="startDraw()">BET</button>
 
         <div id="status-text" style="background:#121b26; border:1px solid #1e293b; padding:8px; border-radius:8px; margin-top:6px; font-size:12px; color: #f59e0b; font-weight: bold;">
-            አዲስ ዙር ለመጀመር ቁጥሮችን ይምረጡ
+            አዲስ ዙር ለመጀመር እስከ 20 ቁጥሮች ይምረጡ
         </div>
     </div>
 
@@ -273,7 +270,7 @@
         </div>
     </div>
 
-    <!-- Bottom Navigation Bar (Tabs) -->
+    <!-- Bottom Navigation Bar -->
     <div class="bottom-nav">
         <div id="nav-game" class="active" onclick="switchTab('game')">▶ GAME</div>
         <div id="nav-history" onclick="switchTab('history')">🕒 HISTORY</div>
@@ -292,6 +289,236 @@
         let totalWins = parseInt(localStorage.getItem('fast_keno_wins') || '0');
 
         const gridEl = document.getElementById('keno-grid');
+        const balanceEl = document.getElementById('user-balance');
+        const betAmountEl = document.getElementById('bet-amount');
+        const selectedCountEl = document.getElementById('selected-count');
+        const statusTextEl = document.getElementById('status-text');
+        const betBtnEl = document.getElementById('bet-button');
+        const timerDisplayEl = document.getElementById('timer-display');
+
+        balanceEl.innerText = balance.toFixed(2);
+        renderHistoryAndResults();
+
+        for (let i = 1; i <= 80; i++) {
+            const btn = document.createElement('button');
+            btn.className = 'cell';
+            btn.innerText = i;
+            btn.onclick = () => toggleNumber(i, btn);
+            gridEl.appendChild(btn);
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.bottom-nav div').forEach(el => el.classList.remove('active'));
+
+            document.getElementById('view-' + tabName).classList.add('active');
+            document.getElementById('nav-' + tabName).classList.add('active');
+        }
+
+        function toggleNumber(num, btn) {
+            if (isPlaying) return;
+            const index = selectedNumbers.indexOf(num);
+            if (index > -1) {
+                selectedNumbers.splice(index, 1);
+                btn.classList.remove('selected');
+            } else {
+                if (selectedNumbers.length >= 20) {
+                    statusTextEl.innerText = "⚠️ ከ 20 በላይ ቁጥሮች መምረጥ አይችሉም!";
+                    return;
+                }
+                selectedNumbers.push(num);
+                btn.classList.add('selected');
+            }
+            selectedNumbers.sort((a, b) => a - b);
+            selectedCountEl.innerText = selectedNumbers.length;
+            statusTextEl.innerText = selectedNumbers.length > 0 ? "ቁጥሮች ተመርጠዋል! BET ይጫኑ" : "አዲስ ዙር ለመጀመር ቁጥሮችን ይምረጡ";
+        }
+
+        function quickPick() {
+            if (isPlaying) return;
+            clearSelection();
+            while (selectedNumbers.length < 20) {
+                let rand = Math.floor(Math.random() * 80) + 1;
+                if (!selectedNumbers.includes(rand)) selectedNumbers.push(rand);
+            }
+            selectedNumbers.sort((a, b) => a - b);
+            selectedCountEl.innerText = selectedNumbers.length;
+            const cells = gridEl.getElementsByClassName('cell');
+            for (let cell of cells) {
+                if (selectedNumbers.includes(parseInt(cell.innerText))) cell.classList.add('selected');
+            }
+            statusTextEl.innerText = "🎲 20 ቁጥሮች በ Quick Pick ተመርጠዋል!";
+        }
+
+        function clearSelection() {
+            if (isPlaying) return;
+            selectedNumbers = [];
+            selectedCountEl.innerText = "0";
+            const cells = gridEl.getElementsByClassName('cell');
+            for (let cell of cells) cell.classList.remove('selected', 'drawn', 'matched');
+            statusTextEl.innerText = "አዲስ ዙር ለመጀመር ቁጥሮችን ይምረጡ";
+        }
+
+        function changeBet(amount) {
+            if (isPlaying) return;
+            bet += amount;
+            if (bet < 5) bet = 5;
+            if (bet > balance) bet = balance;
+            betAmountEl.innerText = bet + " ETB";
+        }
+
+        function startDraw() {
+            if (isPlaying) return;
+            if (selectedNumbers.length === 0) {
+                statusTextEl.innerText = "⚠️ ቢያንስ 1 ቁጥር ይምረጡ!";
+                return;
+            }
+            if (balance < bet) {
+                statusTextEl.innerText = "⚠️ ሂሳብዎ በቂ አይደለም!";
+                return;
+            }
+
+            clearBoardVisuals();
+            balance -= bet;
+            balanceEl.innerText = balance.toFixed(2);
+            saveData();
+
+            isPlaying = true;
+            betBtnEl.disabled = true;
+
+            let countdown = 30;
+            timerDisplayEl.innerText = `00:${countdown < 10 ? '0' : ''}${countdown}`;
+            statusTextEl.innerText = "⏳ ቆጠራ በመሄድ ላይ...";
+
+            let timer = setInterval(() => {
+                countdown--;
+                timerDisplayEl.innerText = `00:${countdown < 10 ? '0' : ''}${countdown}`;
+                if (countdown <= 0) {
+                    clearInterval(timer);
+                    runDrawProcess();
+                }
+            }, 1000);
+        }
+
+        function runDrawProcess() {
+            statusTextEl.innerText = "🎲 20 እጣዎች እየወጡ ነው...";
+            winningNumbers = [];
+
+            // 2% Win Rate algorithm (ከ 100 ጨዋታ 2 ማሸነፍ ቻንስ)
+            let isWinRound = (Math.random() <= 0.02);
+            let targetMatchCount = isWinRound ? Math.min(selectedNumbers.length, Math.floor(Math.random() * 3) + 5) : Math.floor(Math.random() * 3);
+
+            // የመረጧቸውን ቁጥሮች እንደ ቻንሱ ማካተት
+            let availableSelected = [...selectedNumbers];
+            while (winningNumbers.length < targetMatchCount && availableSelected.length > 0) {
+                let randomIndex = Math.floor(Math.random() * availableSelected.length);
+                let picked = availableSelected.splice(randomIndex, 1)[0];
+                winningNumbers.push(picked);
+            }
+
+            // ቀሪዎቹን እጣዎች ከ 80 ቁጥሮች ማሟላት
+            while (winningNumbers.length < 20) {
+                let rand = Math.floor(Math.random() * 80) + 1;
+                if (!isWinRound && selectedNumbers.includes(rand) && winningNumbers.length >= targetMatchCount) {
+                    continue; 
+                }
+                if (!winningNumbers.includes(rand)) {
+                    winningNumbers.push(rand);
+                }
+            }
+
+            const cells = gridEl.getElementsByClassName('cell');
+            for (let cell of cells) {
+                let num = parseInt(cell.innerText);
+                if (winningNumbers.includes(num)) {
+                    if (selectedNumbers.includes(num)) cell.classList.add('matched');
+                    else cell.classList.add('drawn');
+                }
+            }
+
+            let matches = selectedNumbers.filter(n => winningNumbers.includes(n)).length;
+            let winAmount = matches >= 5 ? bet * matches * 2.5 : (matches >= 3 ? bet * 1.5 : 0);
+
+            if (winAmount > 0) {
+                balance += winAmount;
+                totalWins++;
+                statusTextEl.innerHTML = `🎉 <span style="color:#00ff88;">አሸንፈዋል!</span> ${matches} ገጥሟል (+${winAmount.toFixed(2)} ብር)`;
+            } else {
+                statusTextEl.innerHTML = `😢 <span style="color:#ef4444;">አልገጠመም!</span> ${matches} ቁጥር ብቻ።`;
+            }
+
+            totalGames++;
+            balanceEl.innerText = balance.toFixed(2);
+            saveData();
+
+            let newTicket = {
+                id: Math.floor(100000 + Math.random() * 900000),
+                numbers: [...selectedNumbers],
+                bet: bet,
+                matches: matches,
+                win: winAmount,
+                status: winAmount > 0 ? 'Won' : 'Lost'
+            };
+            ticketsHistory.unshift(newTicket);
+            if (ticketsHistory.length > 20) ticketsHistory.pop();
+            localStorage.setItem('fast_keno_tickets', JSON.stringify(ticketsHistory));
+            renderHistoryAndResults();
+
+            setTimeout(() => { resetGame(); }, 5000);
+        }
+
+        function clearBoardVisuals() {
+            const cells = gridEl.getElementsByClassName('cell');
+            for (let cell of cells) cell.classList.remove('drawn', 'matched');
+        }
+
+        function resetGame() {
+            isPlaying = false;
+            betBtnEl.disabled = false;
+            timerDisplayEl.innerText = "00:30";
+            selectedNumbers = [];
+            selectedCountEl.innerText = "0";
+            const cells = gridEl.getElementsByClassName('cell');
+            for (let cell of cells) cell.classList.remove('selected', 'drawn', 'matched');
+            statusTextEl.innerText = "አዲስ ዙር ለመጀመር ቁጥሮችን ይምረጡ";
+        }
+
+        function saveData() {
+            localStorage.setItem('fast_keno_bal', balance);
+            localStorage.setItem('fast_keno_total', totalGames);
+            localStorage.setItem('fast_keno_wins', totalWins);
+        }
+
+        function renderHistoryAndResults() {
+            const historyList = document.getElementById('history-list');
+            const resultsList = document.getElementById('results-list');
+            document.getElementById('stat-total').innerText = totalGames;
+            document.getElementById('stat-wins').innerText = totalWins;
+
+            if (ticketsHistory.length === 0) return;
+
+            let htmlContent = ticketsHistory.map(t => `
+                <div class="ticket-card">
+                    <div class="ticket-header">
+                        <span>ID: ***${t.id}</span>
+                        <span style="color: ${t.win > 0 ? '#00ff88' : '#ef4444'}">${t.status} (${t.win > 0 ? '+' + t.win.toFixed(2) + ' ETB' : '0.00 ETB'})</span>
+                    </div>
+                    <div class="ticket-numbers">
+                        ${t.numbers.map(n => `<div class="t-num">${n}</div>`).join('')}
+                    </div>
+                    <div class="ticket-footer">
+                        <span>Bet: ${t.bet} ETB</span>
+                        <span>Matches: ${t.matches}</span>
+                    </div>
+                </div>
+            `).join('');
+
+            historyList.innerHTML = htmlContent;
+            resultsList.innerHTML = htmlContent;
+        }
+    </script>
+</body>
+</html>
         const balanceEl = document.getElementById('user-balance');
         const betAmountEl = document.getElementById('bet-amount');
         const selectedCountEl = document.getElementById('selected-count');
