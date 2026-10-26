@@ -17,7 +17,6 @@
             padding: 5px;
             user-select: none;
         }
-        /* Top Bar */
         .top-bar {
             display: flex;
             justify-content: space-between;
@@ -29,12 +28,7 @@
             margin: 0 auto 6px auto;
             border: 1px solid #1e293b;
         }
-        .logo {
-            font-weight: 900;
-            color: #00ff88;
-            font-size: 15px;
-            letter-spacing: 0.5px;
-        }
+        .logo { font-weight: 900; color: #00ff88; font-size: 15px; }
         .timer-box {
             background: #1a2634;
             color: #00ff88;
@@ -44,16 +38,9 @@
             font-size: 14px;
             border: 1px solid #2a3b4c;
         }
-        .balance-box {
-            font-size: 13px;
-            color: #94a3b8;
-        }
-        .balance-box span {
-            color: #00ff88;
-            font-weight: bold;
-        }
+        .balance-box { font-size: 13px; color: #94a3b8; }
+        .balance-box span { color: #00ff88; font-weight: bold; }
 
-        /* Banner info */
         .banner {
             background: linear-gradient(135deg, #132235, #0f1722);
             border: 1px solid #1e293b;
@@ -87,7 +74,6 @@
             font-weight: bold;
             border-radius: 4px;
             cursor: pointer;
-            transition: 0.1s;
         }
         .cell:active { transform: scale(0.92); }
         .cell.selected {
@@ -95,7 +81,6 @@
             color: #0b1118;
             border-color: #fff;
             font-weight: 900;
-            box-shadow: 0 0 8px rgba(0,255,136,0.4);
         }
         .cell.drawn {
             background-color: #ff9800;
@@ -106,10 +91,8 @@
             background-color: #ef4444;
             color: #ffffff;
             font-weight: 900;
-            box-shadow: 0 0 10px #ef4444;
         }
 
-        /* Controls / Bet Adjuster */
         .controls-row {
             max-width: 440px;
             margin: 6px auto;
@@ -149,7 +132,6 @@
             cursor: pointer;
         }
 
-        /* Main BET Button */
         .bet-btn {
             background: linear-gradient(135deg, #00ff88, #00b4d8);
             color: #0b1118;
@@ -161,18 +143,61 @@
             font-weight: 900;
             border-radius: 8px;
             cursor: pointer;
-            letter-spacing: 1px;
-            box-shadow: 0 4px 12px rgba(0, 255, 136, 0.3);
             margin: 4px auto;
         }
-        .bet-btn:disabled {
-            background: #1e293b;
-            color: #64748b;
-            box-shadow: none;
-            cursor: not-allowed;
+        .bet-btn:disabled { background: #1e293b; color: #64748b; cursor: not-allowed; }
+
+        /* Views Container (Game / History / Results / Stats) */
+        .view-container {
+            max-width: 440px;
+            margin: 6px auto;
+            display: none;
+        }
+        .view-container.active {
+            display: block;
         }
 
-        /* Bottom Nav Bar (Like Screenshot) */
+        /* Ticket / History Cards (Like Screenshot) */
+        .ticket-card {
+            background: #121b26;
+            border: 1px solid #1e293b;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 8px;
+            text-align: left;
+        }
+        .ticket-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #00ff88;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+        .ticket-numbers {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 6px;
+            flex-wrap: wrap;
+        }
+        .t-num {
+            background: #1a2634;
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .ticket-footer {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #94a3b8;
+            border-top: 1px solid #1e293b;
+            padding-top: 6px;
+        }
+
+        /* Bottom Nav Bar */
         .bottom-nav {
             max-width: 440px;
             margin: 8px auto 0 auto;
@@ -186,24 +211,8 @@
             color: #64748b;
             font-weight: bold;
         }
-        .bottom-nav div {
-            cursor: pointer;
-        }
-        .bottom-nav div.active {
-            color: #00ff88;
-        }
-
-        /* History & Status Box */
-        .info-box {
-            max-width: 440px;
-            margin: 6px auto;
-            background: #121b26;
-            border: 1px solid #1e293b;
-            padding: 6px 10px;
-            border-radius: 8px;
-            font-size: 12px;
-            text-align: left;
-        }
+        .bottom-nav div { cursor: pointer; padding: 4px 8px; border-radius: 4px; }
+        .bottom-nav div.active { color: #00ff88; background: #1a2634; }
     </style>
 </head>
 <body>
@@ -214,38 +223,62 @@
         <div class="balance-box">ባላንስ: <span id="user-balance">50.00</span></div>
     </div>
 
-    <div class="banner">
-        Choose up to 10 numbers | የተመረጡ: <span id="selected-count" style="color:#00ff88;">0</span>/10
-    </div>
-
-    <div class="grid" id="keno-grid"></div>
-
-    <div class="controls-row">
-        <div class="bet-adjuster">
-            <button class="bet-ctrl-btn" onclick="changeBet(-5)">-</button>
-            <span id="bet-amount" style="font-size: 15px; font-weight: bold; color: #00ff88;">10 ETB</span>
-            <button class="bet-ctrl-btn" onclick="changeBet(5)">+</button>
+    <!-- VIEW 1: GAME -->
+    <div id="view-game" class="view-container active">
+        <div class="banner">
+            Choose up to 10 numbers | የተመረጡ: <span id="selected-count" style="color:#00ff88;">0</span>/10
         </div>
-        <button class="quick-btn" onclick="quickPick()">🎲 Quick Pick</button>
-        <button class="quick-btn" onclick="clearSelection()" style="color: #ef4444;">🗑️ Clear</button>
+
+        <div class="grid" id="keno-grid"></div>
+
+        <div class="controls-row">
+            <div class="bet-adjuster">
+                <button class="bet-ctrl-btn" onclick="changeBet(-5)">-</button>
+                <span id="bet-amount" style="font-size: 15px; font-weight: bold; color: #00ff88;">10 ETB</span>
+                <button class="bet-ctrl-btn" onclick="changeBet(5)">+</button>
+            </div>
+            <button class="quick-btn" onclick="quickPick()">🎲 Quick</button>
+            <button class="quick-btn" onclick="clearSelection()" style="color: #ef4444;">🗑️ Clear</button>
+        </div>
+
+        <button class="bet-btn" id="bet-button" onclick="startDraw()">BET</button>
+
+        <div id="status-text" style="background:#121b26; border:1px solid #1e293b; padding:8px; border-radius:8px; margin-top:6px; font-size:12px; color: #f59e0b; font-weight: bold;">
+            አዲስ ዙር ለመጀመር ቁጥሮችን ይምረጡ
+        </div>
     </div>
 
-    <button class="bet-btn" id="bet-button" onclick="startDraw()">BET</button>
-
-    <div class="info-box" id="status-text" style="text-align: center; color: #f59e0b; font-weight: bold;">
-        አዲስ ዙር ለመጀመር ቁጥሮችን ይምረጡ
+    <!-- VIEW 2: HISTORY -->
+    <div id="view-history" class="view-container">
+        <div style="font-size: 14px; font-weight: bold; color: #00ff88; margin-bottom: 8px; text-align: left;">📜 My Tickets / History</div>
+        <div id="history-list">
+            <div style="color: #94a3b8; font-size: 12px; padding: 20px;">እስካሁን የተደረገ ውርርድ የለም</div>
+        </div>
     </div>
 
-    <div class="info-box" style="max-height: 70px; overflow-y: auto;">
-        <div style="color: #ff9800; font-weight: bold; margin-bottom: 2px;">📜 የጨዋታ ታሪክ (History):</div>
-        <div id="history-content" style="color: #94a3b8; font-size: 11px;">እስካሁን የተደረገ ጨዋታ የለም</div>
+    <!-- VIEW 3: RESULTS -->
+    <div id="view-results" class="view-container">
+        <div style="font-size: 14px; font-weight: bold; color: #00ff88; margin-bottom: 8px; text-align: left;">✔ Recent Draw Results</div>
+        <div id="results-list">
+            <div style="color: #94a3b8; font-size: 12px; padding: 20px;">የወጡ እጣዎች ገና የሉም</div>
+        </div>
     </div>
 
+    <!-- VIEW 4: STATS -->
+    <div id="view-stats" class="view-container">
+        <div style="font-size: 14px; font-weight: bold; color: #00ff88; margin-bottom: 8px; text-align: left;">📊 Game Statistics</div>
+        <div style="background:#121b26; border:1px solid #1e293b; padding:12px; border-radius:8px; text-align:left; font-size:12px; color:#94a3b8;">
+            <div>ጠቅላላ የተደረጉ ጨዋታዎች: <span id="stat-total" style="color:#fff; font-weight:bold;">0</span></div>
+            <div>የተሸነፉ/ያሸነፉ: <span id="stat-wins" style="color:#00ff88; font-weight:bold;">0</span></div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation Bar (Tabs) -->
     <div class="bottom-nav">
-        <div class="active">▶ GAME</div>
-        <div>🕒 HISTORY</div>
-        <div>✔ RESULTS</div>
-        <div>📊 STATS</div>
+        <div id="nav-game" class="active" onclick="switchTab('game')">▶ GAME</div>
+        <div id="nav-history" onclick="switchTab('history')">🕒 HISTORY</div>
+        <div id="nav-results" onclick="switchTab('results')">✔ RESULTS</div>
+        <div id="nav-stats" onclick="switchTab('stats')">📊 STATS</div>
     </div>
 
     <script>
@@ -254,7 +287,9 @@
         let selectedNumbers = [];
         let winningNumbers = [];
         let isPlaying = false;
-        let gameHistory = JSON.parse(localStorage.getItem('fast_keno_hist')) || [];
+        let ticketsHistory = JSON.parse(localStorage.getItem('fast_keno_tickets')) || [];
+        let totalGames = parseInt(localStorage.getItem('fast_keno_total') || '0');
+        let totalWins = parseInt(localStorage.getItem('fast_keno_wins') || '0');
 
         const gridEl = document.getElementById('keno-grid');
         const balanceEl = document.getElementById('user-balance');
@@ -263,10 +298,9 @@
         const statusTextEl = document.getElementById('status-text');
         const betBtnEl = document.getElementById('bet-button');
         const timerDisplayEl = document.getElementById('timer-display');
-        const historyContentEl = document.getElementById('history-content');
 
         balanceEl.innerText = balance.toFixed(2);
-        updateHistoryUI();
+        renderHistoryAndResults();
 
         for (let i = 1; i <= 80; i++) {
             const btn = document.createElement('button');
@@ -274,6 +308,14 @@
             btn.innerText = i;
             btn.onclick = () => toggleNumber(i, btn);
             gridEl.appendChild(btn);
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.bottom-nav div').forEach(el => el.classList.remove('active'));
+
+            document.getElementById('view-' + tabName).classList.add('active');
+            document.getElementById('nav-' + tabName).classList.add('active');
         }
 
         function toggleNumber(num, btn) {
@@ -292,11 +334,7 @@
             }
             selectedNumbers.sort((a, b) => a - b);
             selectedCountEl.innerText = selectedNumbers.length;
-            if (selectedNumbers.length > 0) {
-                statusTextEl.innerText = "ቁጥሮች ተመርጠዋል! BET የሚለውን ይጫኑ";
-            } else {
-                statusTextEl.innerText = "አዲስ ዙር ለመጀመር ቁጥሮችን ይምረጡ";
-            }
+            statusTextEl.innerText = selectedNumbers.length > 0 ? "ቁጥሮች ተመርጠዋል! BET ይጫኑ" : "አዲስ ዙር ለመጀመር ቁጥሮችን ይምረጡ";
         }
 
         function quickPick() {
@@ -304,16 +342,13 @@
             clearSelection();
             while (selectedNumbers.length < 5) {
                 let rand = Math.floor(Math.random() * 80) + 1;
-                if (!selectedNumbers.includes(rand)) {
-                    selectedNumbers.push(rand);
-                }
+                if (!selectedNumbers.includes(rand)) selectedNumbers.push(rand);
             }
             selectedNumbers.sort((a, b) => a - b);
             selectedCountEl.innerText = selectedNumbers.length;
             const cells = gridEl.getElementsByClassName('cell');
             for (let cell of cells) {
-                let num = parseInt(cell.innerText);
-                if (selectedNumbers.includes(num)) cell.classList.add('selected');
+                if (selectedNumbers.includes(parseInt(cell.innerText))) cell.classList.add('selected');
             }
             statusTextEl.innerText = "🎲 Quick Pick ተሳክቷል!";
         }
@@ -324,7 +359,7 @@
             selectedCountEl.innerText = "0";
             const cells = gridEl.getElementsByClassName('cell');
             for (let cell of cells) cell.classList.remove('selected', 'drawn', 'matched');
-            statusTextEl.innerText = "ቦርዱ ጸድቷል";
+            statusTextEl.innerText = "አዲስ ዙር ለመጀመር ቁጥሮችን ይምረጡ";
         }
 
         function changeBet(amount) {
@@ -390,24 +425,34 @@
 
             if (winAmount > 0) {
                 balance += winAmount;
+                totalWins++;
                 statusTextEl.innerHTML = `🎉 <span style="color:#00ff88;">አሸንፈዋል!</span> ${matches} ገጥሟል (+${winAmount.toFixed(2)} ብር)`;
             } else {
                 statusTextEl.innerHTML = `😢 <span style="color:#ef4444;">አልገጠመም!</span> ${matches} ቁጥር ብቻ።`;
             }
 
+            totalGames++;
             balanceEl.innerText = balance.toFixed(2);
             saveData();
 
-            let historyItem = `ግጥሚያ: ${matches}/${selectedNumbers.length} | ሽልማት: +${winAmount.toFixed(2)} ብር`;
-            gameHistory.unshift(historyItem);
-            if (gameHistory.length > 5) gameHistory.pop();
-            localStorage.setItem('fast_keno_hist', JSON.stringify(gameHistory));
-            updateHistoryUI();
+            // Save ticket history
+            let newTicket = {
+                id: Math.floor(100000 + Math.random() * 900000),
+                numbers: [...selectedNumbers],
+                bet: bet,
+                matches: matches,
+                win: winAmount,
+                status: winAmount > 0 ? 'Won' : 'Lost'
+            };
+            ticketsHistory.unshift(newTicket);
+            if (ticketsHistory.length > 20) ticketsHistory.pop();
+            localStorage.setItem('fast_keno_tickets', JSON.stringify(ticketsHistory));
+            renderHistoryAndResults();
 
             setTimeout(() => { resetGame(); }, 5000);
         }
 
-        function clearBoardVisuals() {
+        clearBoardVisuals = () => {
             const cells = gridEl.getElementsByClassName('cell');
             for (let cell of cells) cell.classList.remove('drawn', 'matched');
         }
@@ -425,12 +470,36 @@
 
         function saveData() {
             localStorage.setItem('fast_keno_bal', balance);
+            localStorage.setItem('fast_keno_total', totalGames);
+            localStorage.setItem('fast_keno_wins', totalWins);
         }
 
-        function updateHistoryUI() {
-            if (gameHistory.length > 0) {
-                historyContentEl.innerHTML = gameHistory.map(h => `<div>• ${h}</div>`).join('');
-            }
+        function renderHistoryAndResults() {
+            const historyList = document.getElementById('history-list');
+            const resultsList = document.getElementById('results-list');
+            document.getElementById('stat-total').innerText = totalGames;
+            document.getElementById('stat-wins').innerText = totalWins;
+
+            if (ticketsHistory.length === 0) return;
+
+            let htmlContent = ticketsHistory.map(t => `
+                <div class="ticket-card">
+                    <div class="ticket-header">
+                        <span>ID: ***${t.id}</span>
+                        <span style="color: ${t.win > 0 ? '#00ff88' : '#ef4444'}">${t.status} (${t.win > 0 ? '+' + t.win.toFixed(2) + ' ETB' : '0.00 ETB'})</span>
+                    </div>
+                    <div class="ticket-numbers">
+                        ${t.numbers.map(n => `<div class="t-num">${n}</div>`).join('')}
+                    </div>
+                    <div class="ticket-footer">
+                        <span>Bet: ${t.bet} ETB</span>
+                        <span>Matches: ${t.matches}</span>
+                    </div>
+                </div>
+            `).join('');
+
+            historyList.innerHTML = htmlContent;
+            resultsList.innerHTML = htmlContent;
         }
     </script>
 </body>
