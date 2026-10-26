@@ -125,8 +125,8 @@
             background: #121b26;
             border: 1px solid #1e293b;
             color: #00ff88;
-            padding: 10px 10px;
-            font-size: 11px;
+            padding: 10px 12px;
+            font-size: 12px;
             font-weight: bold;
             border-radius: 8px;
             cursor: pointer;
@@ -183,7 +183,7 @@
             color: #fff;
             padding: 4px 8px;
             border-radius: 4px;
-            font-size: 11px;
+            font-size: 12px;
             font-weight: bold;
         }
         .ticket-footer {
@@ -223,8 +223,7 @@
     <!-- VIEW 1: GAME -->
     <div id="view-game" class="view-container active">
         <div class="banner">
-            Choose 10 numbers | የተመረጡ: <span id="selected-count" style="color:#00ff88;">0</span>/10
-            <div style="margin-top: 4px; font-size: 11px; color: #f59e0b;">መደቦች (Tickets): <span id="ticket-qty" style="color:#fff;">1</span>/20</div>
+            Choose up to 20 numbers | የተመረጡ: <span id="selected-count" style="color:#00ff88;">0</span>/20
         </div>
 
         <div class="grid" id="keno-grid"></div>
@@ -232,18 +231,17 @@
         <div class="controls-row">
             <div class="bet-adjuster">
                 <button class="bet-ctrl-btn" onclick="changeBet(-5)">-</button>
-                <span id="bet-amount" style="font-size: 14px; font-weight: bold; color: #00ff88;">10 ETB</span>
+                <span id="bet-amount" style="font-size: 15px; font-weight: bold; color: #00ff88;">10 ETB</span>
                 <button class="bet-ctrl-btn" onclick="changeBet(5)">+</button>
             </div>
-            <button class="quick-btn" onclick="changeTickets(1)">🎫 ቲኬት (+1)</button>
-            <button class="quick-btn" onclick="quickPick()">🎲 Quick</button>
-            <button class="quick-btn" onclick="clearSelection()" style="color: #ef4444;">🗑️</button>
+            <button class="quick-btn" onclick="quickPick()">🎲 Quick (20)</button>
+            <button class="quick-btn" onclick="clearSelection()" style="color: #ef4444;">🗑️ Clear</button>
         </div>
 
         <button class="bet-btn" id="bet-button" onclick="startDraw()">BET</button>
 
         <div id="status-text" style="background:#121b26; border:1px solid #1e293b; padding:8px; border-radius:8px; margin-top:6px; font-size:12px; color: #f59e0b; font-weight: bold;">
-            10 ቁጥሮችን ይምረጡ እና እስከ 20 ቲኬት ይመድቡ
+            አዲስ ዙር ለመጀመር እስከ 20 ቁጥሮች ይምረጡ
         </div>
     </div>
 
@@ -283,7 +281,6 @@
     <script>
         let balance = localStorage.getItem('fast_keno_bal') ? parseFloat(localStorage.getItem('fast_keno_bal')) : 50.00;
         let bet = 10;
-        let ticketQty = 1; // እስከ 20 መደብ/ቲኬት
         let selectedNumbers = [];
         let winningNumbers = [];
         let isPlaying = false;
@@ -295,7 +292,6 @@
         const balanceEl = document.getElementById('user-balance');
         const betAmountEl = document.getElementById('bet-amount');
         const selectedCountEl = document.getElementById('selected-count');
-        const ticketQtyEl = document.getElementById('ticket-qty');
         const statusTextEl = document.getElementById('status-text');
         const betBtnEl = document.getElementById('bet-button');
         const timerDisplayEl = document.getElementById('timer-display');
@@ -326,9 +322,8 @@
                 selectedNumbers.splice(index, 1);
                 btn.classList.remove('selected');
             } else {
-                if (selectedNumbers.length >= 10) {
-                    statusText-Text = "⚠️ በትክክል 10 ቁጥሮች ብቻ መምረጥ ይቻላል!";
-                    statusTextEl.innerText = "⚠️ በትክክል 10 ቁጥሮች ብቻ መምረጥ ይቻላል!";
+                if (selectedNumbers.length >= 20) {
+                    statusTextEl.innerText = "⚠️ ከ 20 በላይ ቁጥሮች መምረጥ አይችሉም!";
                     return;
                 }
                 selectedNumbers.push(num);
@@ -336,21 +331,13 @@
             }
             selectedNumbers.sort((a, b) => a - b);
             selectedCountEl.innerText = selectedNumbers.length;
-            statusTextEl.innerText = selectedNumbers.length === 10 ? "10 ቁጥሮች ተመርጠዋል! BET ይጫኑ" : `እባክዎ 10 ቁጥሮች ይምረጡ (አሁን: ${selectedCountEl.innerText}/10)`;
-        }
-
-        function changeTickets(amount) {
-            if (isPlaying) return;
-            ticketQty += amount;
-            if (ticketQty < 1) ticketQty = 1;
-            if (ticketQty > 20) ticketQty = 20; // እስከ 20 መደብ
-            ticketQtyEl.innerText = ticketQty;
+            statusTextEl.innerText = selectedNumbers.length > 0 ? "ቁጥሮች ተመርጠዋል! BET ይጫኑ" : "አዲስ ዙር ለመጀመር ቁጥሮችን ይምረጡ";
         }
 
         function quickPick() {
             if (isPlaying) return;
             clearSelection();
-            while (selectedNumbers.length < 10) {
+            while (selectedNumbers.length < 20) {
                 let rand = Math.floor(Math.random() * 80) + 1;
                 if (!selectedNumbers.includes(rand)) selectedNumbers.push(rand);
             }
@@ -360,18 +347,16 @@
             for (let cell of cells) {
                 if (selectedNumbers.includes(parseInt(cell.innerText))) cell.classList.add('selected');
             }
-            statusTextEl.innerText = "🎲 10 ቁጥሮች በ Quick Pick ተመርጠዋል!";
+            statusTextEl.innerText = "🎲 20 ቁጥሮች በ Quick Pick ተመርጠዋል!";
         }
 
         function clearSelection() {
             if (isPlaying) return;
             selectedNumbers = [];
-            ticketQty = 1;
             selectedCountEl.innerText = "0";
-            ticketQtyEl.innerText = "1";
             const cells = gridEl.getElementsByClassName('cell');
             for (let cell of cells) cell.classList.remove('selected', 'drawn', 'matched');
-            statusTextEl.innerText = "አዲስ ዙር ለመጀመር 10 ቁጥሮችን ይምረጡ";
+            statusTextEl.innerText = "አዲስ ዙር ለመጀመር ቁጥሮችን ይምረጡ";
         }
 
         function changeBet(amount) {
@@ -384,18 +369,17 @@
 
         function startDraw() {
             if (isPlaying) return;
-            if (selectedNumbers.length !== 10) {
-                statusTextEl.innerText = "⚠️ እባክዎ በትክክል 10 ቁጥሮች ይምረጡ!";
+            if (selectedNumbers.length === 0) {
+                statusTextEl.innerText = "⚠️ ቢያንስ 1 ቁጥር ይምረጡ!";
                 return;
             }
-            let totalCost = bet * ticketQty;
-            if (balance < totalCost) {
-                statusTextEl.innerText = "⚠️ ሂሳብዎ ለዚህ ያህል መደብ በቂ አይደለም!";
+            if (balance < bet) {
+                statusTextEl.innerText = "⚠️ ሂሳብዎ በቂ አይደለም!";
                 return;
             }
 
             clearBoardVisuals();
-            balance -= totalCost;
+            balance -= bet;
             balanceEl.innerText = balance.toFixed(2);
             saveData();
 
@@ -422,8 +406,9 @@
 
             // 2% Win Rate algorithm (ከ 100 ጨዋታ 2 ማሸነፍ ቻንስ)
             let isWinRound = (Math.random() <= 0.02);
-            let targetMatchCount = isWinRound ? Math.min(10, Math.floor(Math.random() * 3) + 5) : Math.floor(Math.random() * 3);
+            let targetMatchCount = isWinRound ? Math.min(selectedNumbers.length, Math.floor(Math.random() * 3) + 5) : Math.floor(Math.random() * 3);
 
+            // የመረጧቸውን ቁጥሮች እንደ ቻንሱ ማካተት
             let availableSelected = [...selectedNumbers];
             while (winningNumbers.length < targetMatchCount && availableSelected.length > 0) {
                 let randomIndex = Math.floor(Math.random() * availableSelected.length);
@@ -431,6 +416,7 @@
                 winningNumbers.push(picked);
             }
 
+            // ቀሪዎቹን እጣዎች ከ 80 ቁጥሮች ማሟላት
             while (winningNumbers.length < 20) {
                 let rand = Math.floor(Math.random() * 80) + 1;
                 if (!isWinRound && selectedNumbers.includes(rand) && winningNumbers.length >= targetMatchCount) {
@@ -451,13 +437,12 @@
             }
 
             let matches = selectedNumbers.filter(n => winningNumbers.includes(n)).length;
-            let singleWin = matches >= 5 ? bet * matches * 2.5 : (matches >= 3 ? bet * 1.5 : 0);
-            let totalWinAmount = singleWin * ticketQty;
+            let winAmount = matches >= 5 ? bet * matches * 2.5 : (matches >= 3 ? bet * 1.5 : 0);
 
-            if (totalWinAmount > 0) {
-                balance += totalWinAmount;
+            if (winAmount > 0) {
+                balance += winAmount;
                 totalWins++;
-                statusTextEl.innerHTML = `🎉 <span style="color:#00ff88;">አሸንፈዋል!</span> (${ticketQty} መደብ) ${matches} ገጥሟል (+${totalWinAmount.toFixed(2)} ብር)`;
+                statusTextEl.innerHTML = `🎉 <span style="color:#00ff88;">አሸንፈዋል!</span> ${matches} ገጥሟል (+${winAmount.toFixed(2)} ብር)`;
             } else {
                 statusTextEl.innerHTML = `😢 <span style="color:#ef4444;">አልገጠመም!</span> ${matches} ቁጥር ብቻ።`;
             }
@@ -469,11 +454,10 @@
             let newTicket = {
                 id: Math.floor(100000 + Math.random() * 900000),
                 numbers: [...selectedNumbers],
-                bet: bet * ticketQty,
-                qty: ticketQty,
+                bet: bet,
                 matches: matches,
-                win: totalWinAmount,
-                status: totalWinAmount > 0 ? 'Won' : 'Lost'
+                win: winAmount,
+                status: winAmount > 0 ? 'Won' : 'Lost'
             };
             ticketsHistory.unshift(newTicket);
             if (ticketsHistory.length > 20) ticketsHistory.pop();
@@ -493,12 +477,10 @@
             betBtnEl.disabled = false;
             timerDisplayEl.innerText = "00:30";
             selectedNumbers = [];
-            ticketQty = 1;
             selectedCountEl.innerText = "0";
-            ticketQtyEl.innerText = "1";
             const cells = gridEl.getElementsByClassName('cell');
             for (let cell of cells) cell.classList.remove('selected', 'drawn', 'matched');
-            statusTextEl.innerText = "አዲስ ዙር ለመጀመር 10 ቁጥሮችን ይምረጡ";
+            statusTextEl.innerText = "አዲስ ዙር ለመጀመር ቁጥሮችን ይምረጡ";
         }
 
         function saveData() {
@@ -518,14 +500,14 @@
             let htmlContent = ticketsHistory.map(t => `
                 <div class="ticket-card">
                     <div class="ticket-header">
-                        <span>ID: ***${t.id} (Qty: ${t.qty})</span>
+                        <span>ID: ***${t.id}</span>
                         <span style="color: ${t.win > 0 ? '#00ff88' : '#ef4444'}">${t.status} (${t.win > 0 ? '+' + t.win.toFixed(2) + ' ETB' : '0.00 ETB'})</span>
                     </div>
                     <div class="ticket-numbers">
                         ${t.numbers.map(n => `<div class="t-num">${n}</div>`).join('')}
                     </div>
                     <div class="ticket-footer">
-                        <span>Total Bet: ${t.bet} ETB</span>
+                        <span>Bet: ${t.bet} ETB</span>
                         <span>Matches: ${t.matches}</span>
                     </div>
                 </div>
@@ -536,4 +518,4 @@
         }
     </script>
 </body>
-    </html>
+</html>
