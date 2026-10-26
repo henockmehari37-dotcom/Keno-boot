@@ -564,3 +564,24 @@ ws.onmessage = function(event) {
 ws.onclose = function() {
     console.log("ግንኙነቱ ተቋርጧል!");
 };
+// የሄኖክን ባላንስ ለመሙላት የሚረዳው ፋንክሽን
+function addHenokBalance(amount) {
+    fetch('http://127.0.0.1:8000/api/telebirr-webhook', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            outTradeNo: "TXN_" + Date.now(),
+            totalAmount: amount.toString(),
+            userId: "0980306278", // የሄኖክ ስልክ ቁጥር
+            status: "COMPLETED"
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === "success") {
+            alert("የሄኖክ ባላንስ በተሳካ ሁኔታ ተሻሽሏል!");
+        }
+    });
+}
