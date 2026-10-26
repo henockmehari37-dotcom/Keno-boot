@@ -86,14 +86,20 @@
             background-color: #ff9800;
             color: #0b1118;
             font-weight: 900;
-            transform: scale(1.05);
+            transform: scale(1.08);
+            box-shadow: 0 0 10px #ff9800;
         }
         .cell.matched {
             background-color: #ef4444;
             color: #ffffff;
             font-weight: 900;
-            transform: scale(1.1);
-            box-shadow: 0 0 10px #ef4444;
+            transform: scale(1.12);
+            box-shadow: 0 0 12px #ef4444;
+            animation: pulse 0.3s infinite alternate;
+        }
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.15); }
         }
 
         .controls-row {
@@ -287,7 +293,7 @@
         let bet = 10;
         let ticketQty = 1;
         let selectedNumbers = [];
-        let activeTickets = []; // የተጫወቷቸው ቲኬቶች
+        let activeTickets = [];
         let isDrawing = false;
         let countdown = 30;
         let ticketsHistory = JSON.parse(localStorage.getItem('fast_keno_tickets')) || [];
@@ -313,7 +319,7 @@
             gridEl.appendChild(btn);
         }
 
-        // ሁልጊዜም ያለማቋረጥ የሚቆጠር የ 30 ሰኮንድ ቆጠራ (Continuous Timer)
+        // ያለማቋረጥ የሚቆጠር የ 30 ሰኮንድ ቆጠራ
         setInterval(() => {
             if (!isDrawing) {
                 countdown--;
@@ -322,7 +328,7 @@
                     startDrawProcess();
                 }
                 let secStr = countdown < 10 ? '0' + countdown : countdown;
-                timerDisplayEl.innerText = `00:${secStr}`;
+                timerDisplayEl.innerText = `00:\${secStr}`;
             }
         }, 1000);
 
@@ -349,208 +355,4 @@
             }
             selectedNumbers.sort((a, b) => a - b);
             selectedCountEl.innerText = selectedNumbers.length;
-            statusTextEl.innerText = selectedNumbers.length === 10 ? "10 ቁጥሮች ተመርጠዋል!" : `እባክዎ 10 ቁጥሮች ይምረጡ (${selectedCountEl.innerText}/10)`;
-        }
-
-        function changeTickets(amount) {
-            if (isDrawing) return;
-            ticketQty += amount;
-            if (ticketQty < 1) ticketQty = 1;
-            if (ticketQty > 20) ticketQty = 20;
-            ticketQtyEl.innerText = ticketQty;
-        }
-
-        function quickPick() {
-            if (isDrawing) return;
-            clearSelection();
-            while (selectedNumbers.length < 10) {
-                let rand = Math.floor(Math.random() * 80) + 1;
-                if (!selectedNumbers.includes(rand)) selectedNumbers.push(rand);
-            }
-            selectedNumbers.sort((a, b) => a - b);
-            selectedCountEl.innerText = selectedNumbers.length;
-            const cells = gridEl.getElementsByClassName('cell');
-            for (let cell of cells) {
-                if (selectedNumbers.includes(parseInt(cell.innerText))) cell.classList.add('selected');
-            }
-            statusTextEl.innerText = "🎲 10 ቁጥሮች በ Quick Pick ተመርጠዋል!";
-        }
-
-        function clearSelection() {
-            if (isDrawing) return;
-            selectedNumbers = [];
-            ticketQty = 1;
-            selectedCountEl.innerText = "0";
-            ticketQtyEl.innerText = "1";
-            const cells = gridEl.getElementsByClassName('cell');
-            for (let cell of cells) cell.classList.remove('selected', 'drawn', 'matched');
-            statusTextEl.innerText = "አዲስ ቲኬት ለመምረጥ 10 ቁጥሮችን ይምረጡ";
-        }
-
-        function changeBet(amount) {
-            if (isDrawing) return;
-            bet += amount;
-            if (bet < 5) bet = 5;
-            if (bet > balance) bet = balance;
-            betAmountEl.innerText = bet + " ETB";
-        }
-
-        function placeBet() {
-            if (selectedNumbers.length !== 10) {
-                statusTextEl.innerText = "⚠️ እባክዎ በትክክል 10 ቁጥሮች ይምረጡ!";
-                return;
-            }
-            let totalCost = bet * ticketQty;
-            if (balance < totalCost) {
-                statusTextEl.innerText = "⚠️ ሂሳብዎ በቂ አይደለም!";
-                return;
-            }
-
-            balance -= totalCost;
-            balanceEl.innerText = balance.toFixed(2);
-            saveData();
-
-            activeTickets.push({
-                numbers: [...selectedNumbers],
-                bet: bet * ticketQty,
-                qty: ticketQty
-            });
-
-            statusTextEl.innerHTML = `✅ ቲኬትዎ ተመዝግቧል! (ቀጣይ ዙር እስኪወጣ ይጠብቁ)`;
-            clearSelection();
-        }
-
-        function startDrawProcess() {
-            isDrawing = true;
-            statusTextEl.innerText = "🎲 እጣ መውጣት ጀመረ... ቁጥሮቹን ይከታተሉ!";
-            
-            // የቦርድ ማጽዳት
-            const cells = gridEl.getElementsByClassName('cell');
-            for (let cell of cells) cell.classList.remove('drawn', 'matched');
-
-            // 2% Win Rate algorithm
-            let winningNumbers = [];
-            let isWinRound = (Math.random() <= 0.02);
-            
-            // 20 እጣዎችን ማመንጨት
-            while (winningNumbers.length < 20) {
-                let rand = Math.floor(Math.random() * 80) + 1;
-                if (!winningNumbers.includes(rand)) winningNumbers.push(rand);
-            }
-
-            // እጣዎችን አንድ በአንድ በ 5 ሰኮንድ ውስጥ ማሳየት (በእያንዳንዱ 250 ሚሊሰኮንድ አንድ ቁጥር)
-            let drawIndex = 0;
-            let drawInterval = setInterval(() => {
-                if (drawIndex < winningNumbers.length) {
-                    let drawnNum = winningNumbers[drawIndex];
-                    for (let cell of cells) {
-                        let num = parseInt(cell.innerText);
-                        if (num === drawnNum) {
-                            // ተጠቃሚው ያስገባው ቲኬት ካለ ማመሳከር
-                            let matchedAny = false;
-                            for (let t of activeTickets) {
-                                if (t.numbers.includes(num)) matchedAny = true;
-                            }
-                            if (matchedAny) {
-                                cell.classList.add('matched');
-                            } else {
-                                cell.classList.add('drawn');
-                            }
-                        }
-                    }
-                    drawIndex++;
-                } else {
-                    clearInterval(drawInterval);
-                    evaluateResults(winningNumbers);
-                }
-            }, 250); // ጠቅላላ 20 ቁጥሮች በ ~5 ሰኮንድ ውስጥ ወጥተው ይጠናቀቃሉ
-        }
-
-        function evaluateResults(winningNumbers) {
-            let totalWinAmount = 0;
-            let playedMatches = 0;
-
-            if (activeTickets.length > 0) {
-                totalGames++;
-                for (let t of activeTickets) {
-                    let matches = t.numbers.filter(n => winningNumbers.includes(n)).length;
-                    playedMatches = matches;
-                    let singleWin = matches >= 5 ? (t.bet / t.qty) * matches * 2.5 : (matches >= 3 ? (t.bet / t.qty) * 1.5 : 0);
-                    let ticketWin = singleWin * t.qty;
-                    totalWinAmount += ticketWin;
-
-                    let newTicket = {
-                        id: Math.floor(100000 + Math.random() * 900000),
-                        numbers: t.numbers,
-                        bet: t.bet,
-                        qty: t.qty,
-                        matches: matches,
-                        win: ticketWin,
-                        status: ticketWin > 0 ? 'Won' : 'Lost'
-                    };
-                    ticketsHistory.unshift(newTicket);
-                }
-                if (ticketsHistory.length > 20) ticketsHistory.pop();
-                localStorage.setItem('fast_keno_tickets', JSON.stringify(ticketsHistory));
-
-                if (totalWinAmount > 0) {
-                    balance += totalWinAmount;
-                    totalWins++;
-                    statusTextEl.innerHTML = `🎉 <span style="color:#00ff88;">አሸንፈዋል!</span> (+${totalWinAmount.toFixed(2)} ብር)`;
-                } else {
-                    statusTextEl.innerHTML = `😢 <span style="color:#ef4444;">አልገጠመም!</span> ቀጣይ ዙር ይሞክሩ።`;
-                }
-            } else {
-                statusTextEl.innerHTML = `⏳ ዙሩ አልፏል (ቲኬት አልተቆረጠምም ነበር)`;
-            }
-
-            balanceEl.innerText = balance.toFixed(2);
-            saveData();
-            renderHistoryAndResults();
-
-            // ከ 5 ሰኮንድ በኋላ አዲስ ዙር ማስጀመር
-            setTimeout(() => {
-                activeTickets = [];
-                isDrawing; // reset
-                isDrawing = false;
-                countdown = 30;
-                statusTextEl.innerText = "አዲስ ዙር ጀምሯል! 10 ቁጥሮችን ይምረጡ";
-            }, 4000);
-        }
-
-        function saveData() {
-            localStorage.setItem('fast_keno_bal', balance);
-            localStorage.setItem('fast_keno_total', totalGames);
-            localStorage.setItem('fast_keno_wins', totalWins);
-        }
-
-        function renderHistoryAndResults() {
-            const historyList = document.getElementById('history-list');
-            const resultsList = document.getElementById('results-list');
-            document.getElementById('stat-total').innerText = totalGames;
-            document.getElementById('stat-wins').innerText = totalWins;
-
-            if (ticketsHistory.length === 0) return;
-
-            let htmlContent = ticketsHistory.map(t => `
-                <div class="ticket-card">
-                    <div class="ticket-header">
-                        <span>ID: ***${t.id} (Qty: ${t.qty})</span>
-                        <span style="color: ${t.win > 0 ? '#00ff88' : '#ef4444'}">${t.status} (${t.win > 0 ? '+' + t.win.toFixed(2) + ' ETB' : '0.00 ETB'})</span>
-                    </div>
-                    <div class="ticket-numbers">
-                        ${t.numbers.map(n => `<div class="t-num">${n}</div>`).join('')}
-                    </div>
-                    <div class="ticket-footer">
-                        <span>Total Bet: ${t.bet} ETB</span>
-                        <span>Matches: ${t.matches}</span>
-                    </div>
-                </div>
-            `).join('');
-
-            historyList.innerHTML = htmlContent;
-            resultsList.innerHTML = htmlContent;
-        }
-    </script>
-</body>
-    </html>
+            statusTextEl.innerText = selectedNumbers.length === 10 ? "10 ቁጥሮች ተመርጠዋል!" : `እባክ
