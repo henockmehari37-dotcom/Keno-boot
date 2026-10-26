@@ -44,22 +44,22 @@
         .banner {
             background: linear-gradient(135deg, #132235, #0f1722);
             border: 1px solid #1e293b;
-            padding: 8px;
+            padding: 6px;
             border-radius: 8px;
             max-width: 440px;
             margin: 0 auto 6px auto;
-            font-size: 13px;
+            font-size: 12px;
             color: #94a3b8;
         }
         .banner span { color: #ffffff; font-weight: bold; }
 
-        /* 80 Grid */
+        /* 80 Grid Styling - Fixed Position */
         .grid {
             display: grid;
             grid-template-columns: repeat(10, 1fr);
             gap: 3px;
             max-width: 440px;
-            margin: 0 auto;
+            margin: 0 auto 6px auto;
             background: #121b26;
             padding: 6px;
             border-radius: 8px;
@@ -69,13 +69,14 @@
             background-color: #1a2634;
             color: #cbd5e1;
             border: 1px solid #2a3b4c;
-            padding: 8px 0;
+            padding: 7px 0;
             font-size: 12px;
             font-weight: bold;
             border-radius: 4px;
             cursor: pointer;
-            transition: 0.15s;
+            transition: 0.1s;
         }
+        .cell:active { transform: scale(0.92); }
         .cell.selected {
             background-color: #00ff88;
             color: #0b1118;
@@ -86,20 +87,14 @@
             background-color: #ff9800;
             color: #0b1118;
             font-weight: 900;
-            transform: scale(1.08);
-            box-shadow: 0 0 10px #ff9800;
+            transform: scale(1.05);
         }
         .cell.matched {
             background-color: #ef4444;
             color: #ffffff;
             font-weight: 900;
-            transform: scale(1.12);
-            box-shadow: 0 0 12px #ef4444;
-            animation: pulse 0.3s infinite alternate;
-        }
-        @keyframes pulse {
-            from { transform: scale(1); }
-            to { transform: scale(1.15); }
+            transform: scale(1.1);
+            box-shadow: 0 0 10px #ef4444;
         }
 
         .controls-row {
@@ -117,15 +112,15 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 4px 10px;
+            padding: 4px 8px;
         }
         .bet-ctrl-btn {
             background: #1a2634;
             border: 1px solid #2a3b4c;
             color: #fff;
-            font-size: 16px;
-            width: 28px;
-            height: 28px;
+            font-size: 15px;
+            width: 26px;
+            height: 26px;
             border-radius: 4px;
             cursor: pointer;
             font-weight: bold;
@@ -134,7 +129,7 @@
             background: #121b26;
             border: 1px solid #1e293b;
             color: #00ff88;
-            padding: 10px 10px;
+            padding: 9px 8px;
             font-size: 11px;
             font-weight: bold;
             border-radius: 8px;
@@ -147,8 +142,8 @@
             border: none;
             width: 100%;
             max-width: 440px;
-            padding: 13px;
-            font-size: 18px;
+            padding: 12px;
+            font-size: 16px;
             font-weight: 900;
             border-radius: 8px;
             cursor: pointer;
@@ -157,7 +152,7 @@
 
         .view-container {
             max-width: 440px;
-            margin: 6px auto;
+            margin: 0 auto;
             display: none;
         }
         .view-container.active {
@@ -205,13 +200,13 @@
 
         .bottom-nav {
             max-width: 440px;
-            margin: 8px auto 0 auto;
+            margin: 6px auto 0 auto;
             background: #121b26;
             border: 1px solid #1e293b;
             border-radius: 8px;
             display: flex;
             justify-content: space-around;
-            padding: 8px 0;
+            padding: 7px 0;
             font-size: 11px;
             color: #64748b;
             font-weight: bold;
@@ -231,10 +226,10 @@
     <!-- VIEW 1: GAME -->
     <div id="view-game" class="view-container active">
         <div class="banner">
-            Choose 10 numbers | የተመረጡ: <span id="selected-count" style="color:#00ff88;">0</span>/10
-            <div style="margin-top: 4px; font-size: 11px; color: #f59e0b;">መደቦች (Tickets): <span id="ticket-qty" style="color:#fff;">1</span>/20</div>
+            Choose 10 numbers | የተመረጡ: <span id="selected-count" style="color:#00ff88;">0</span>/10 | ቲኬት: <span id="ticket-qty" style="color:#fff;">1</span>/20
         </div>
 
+        <!-- 80 Numbers Grid Board -->
         <div class="grid" id="keno-grid"></div>
 
         <div class="controls-row">
@@ -243,14 +238,14 @@
                 <span id="bet-amount" style="font-size: 14px; font-weight: bold; color: #00ff88;">10 ETB</span>
                 <button class="bet-ctrl-btn" onclick="changeBet(5)">+</button>
             </div>
-            <button class="quick-btn" onclick="changeTickets(1)">🎫 ቲኬት (+1)</button>
+            <button class="quick-btn" onclick="changeTickets(1)">🎫 (+1)</button>
             <button class="quick-btn" onclick="quickPick()">🎲 Quick</button>
             <button class="quick-btn" onclick="clearSelection()" style="color: #ef4444;">🗑️</button>
         </div>
 
         <button class="bet-btn" id="bet-button" onclick="placeBet()">ቲኬቱን አስገባ (BET)</button>
 
-        <div id="status-text" style="background:#121b26; border:1px solid #1e293b; padding:8px; border-radius:8px; margin-top:6px; font-size:12px; color: #f59e0b; font-weight: bold;">
+        <div id="status-text" style="background:#121b26; border:1px solid #1e293b; padding:7px; border-radius:8px; margin-top:4px; font-size:11px; color: #f59e0b; font-weight: bold;">
             10 ቁጥሮችን ይምረጡ እና BET ይጫኑ
         </div>
     </div>
@@ -311,6 +306,7 @@
         balanceEl.innerText = balance.toFixed(2);
         renderHistoryAndResults();
 
+        // 80 Grid buttons generation
         for (let i = 1; i <= 80; i++) {
             const btn = document.createElement('button');
             btn.className = 'cell';
@@ -319,40 +315,5 @@
             gridEl.appendChild(btn);
         }
 
-        // ያለማቋረጥ የሚቆጠር የ 30 ሰኮንድ ቆጠራ
+        // Continuous Timer
         setInterval(() => {
-            if (!isDrawing) {
-                countdown--;
-                if (countdown < 0) {
-                    countdown = 30;
-                    startDrawProcess();
-                }
-                let secStr = countdown < 10 ? '0' + countdown : countdown;
-                timerDisplayEl.innerText = `00:\${secStr}`;
-            }
-        }, 1000);
-
-        function switchTab(tabName) {
-            document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.bottom-nav div').forEach(el => el.classList.remove('active'));
-            document.getElementById('view-' + tabName).classList.add('active');
-            document.getElementById('nav-' + tabName).classList.add('active');
-        }
-
-        function toggleNumber(num, btn) {
-            if (isDrawing) return;
-            const index = selectedNumbers.indexOf(num);
-            if (index > -1) {
-                selectedNumbers.splice(index, 1);
-                btn.classList.remove('selected');
-            } else {
-                if (selectedNumbers.length >= 10) {
-                    statusTextEl.innerText = "⚠️ በትክክል 10 ቁጥሮች ብቻ መምረጥ ይቻላል!";
-                    return;
-                }
-                selectedNumbers.push(num);
-                btn.classList.add('selected');
-            }
-            selectedNumbers.sort((a, b) => a - b);
-            selectedCountEl.innerText = selectedNumbers.length;
-            statusTextEl.innerText = selectedNumbers.length === 10 ? "10 ቁጥሮች ተመርጠዋል!" : `እባክ
