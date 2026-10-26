@@ -3,244 +3,271 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VIP PRO VIRTUAL KENO CASINO</title>
+    <title>FAST KENO CASINO</title>
     <style>
-        :root {
-            --bg-dark: #0a0e17;
-            --panel-bg: #161b22;
-            --accent-green: #00ff88;
-            --accent-gold: #ffcc00;
-            --accent-orange: #ff9800;
-            --accent-red: #ff3366;
-            --text-main: #f0f6fc;
-            --text-muted: #8b949e;
+        * {
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
         body {
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #0b1118;
+            color: #ffffff;
             text-align: center;
             margin: 0;
-            padding: 8px;
+            padding: 5px;
             user-select: none;
         }
-        .header {
-            background: linear-gradient(135deg, #1f2937, #111827);
-            border: 1px solid #374151;
-            padding: 10px;
-            border-radius: 10px;
-            max-width: 440px;
-            margin: 0 auto 10px auto;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-        }
-        h2 { color: var(--accent-green); margin: 0 0 5px 0; font-size: 20px; letter-spacing: 1px; text-shadow: 0 0 10px rgba(0,255,136,0.3); }
-        .stats-row {
+        /* Top Bar */
+        .top-bar {
             display: flex;
             justify-content: space-between;
-            font-size: 13px;
-            color: var(--text-muted);
-            margin-top: 5px;
+            align-items: center;
+            background: #121b26;
+            padding: 8px 12px;
+            border-radius: 8px;
+            max-width: 440px;
+            margin: 0 auto 6px auto;
+            border: 1px solid #1e293b;
         }
-        .stats-row span { color: var(--accent-gold); font-weight: bold; }
-        
+        .logo {
+            font-weight: 900;
+            color: #00ff88;
+            font-size: 15px;
+            letter-spacing: 0.5px;
+        }
+        .timer-box {
+            background: #1a2634;
+            color: #00ff88;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 14px;
+            border: 1px solid #2a3b4c;
+        }
+        .balance-box {
+            font-size: 13px;
+            color: #94a3b8;
+        }
+        .balance-box span {
+            color: #00ff88;
+            font-weight: bold;
+        }
+
+        /* Banner info */
+        .banner {
+            background: linear-gradient(135deg, #132235, #0f1722);
+            border: 1px solid #1e293b;
+            padding: 8px;
+            border-radius: 8px;
+            max-width: 440px;
+            margin: 0 auto 6px auto;
+            font-size: 13px;
+            color: #94a3b8;
+        }
+        .banner span { color: #ffffff; font-weight: bold; }
+
         /* 80 Grid */
         .grid {
             display: grid;
             grid-template-columns: repeat(10, 1fr);
-            gap: 4px;
+            gap: 3px;
             max-width: 440px;
-            margin: 8px auto;
-            background: var(--panel-bg);
-            padding: 8px;
-            border-radius: 10px;
-            border: 1px solid #30363d;
+            margin: 0 auto;
+            background: #121b26;
+            padding: 6px;
+            border-radius: 8px;
+            border: 1px solid #1e293b;
         }
         .cell {
-            background-color: #21262d;
-            color: var(--text-main);
-            border: 1px solid #30363d;
-            padding: 10px 0;
+            background-color: #1a2634;
+            color: #cbd5e1;
+            border: 1px solid #2a3b4c;
+            padding: 8px 0;
             font-size: 12px;
             font-weight: bold;
-            border-radius: 5px;
+            border-radius: 4px;
             cursor: pointer;
-            transition: all 0.15s ease-in-out;
+            transition: 0.1s;
         }
         .cell:active { transform: scale(0.92); }
         .cell.selected {
-            background-color: var(--accent-green);
-            color: #000;
+            background-color: #00ff88;
+            color: #0b1118;
             border-color: #fff;
-            box-shadow: 0 0 8px var(--accent-green);
+            font-weight: 900;
+            box-shadow: 0 0 8px rgba(0,255,136,0.4);
         }
         .cell.drawn {
-            background-color: var(--accent-orange);
-            color: #000;
+            background-color: #ff9800;
+            color: #0b1118;
+            font-weight: 900;
         }
         .cell.matched {
-            background-color: var(--accent-red);
-            color: #fff;
-            box-shadow: 0 0 12px var(--accent-red);
-            animation: bounce 0.4s infinite alternate;
-        }
-        @keyframes bounce {
-            from { transform: scale(1); }
-            to { transform: scale(1.12); }
+            background-color: #ef4444;
+            color: #ffffff;
+            font-weight: 900;
+            box-shadow: 0 0 10px #ef4444;
         }
 
-        /* Controls */
-        .controls-panel {
+        /* Controls / Bet Adjuster */
+        .controls-row {
             max-width: 440px;
-            margin: 8px auto;
-            background: var(--panel-bg);
-            padding: 8px 12px;
-            border-radius: 10px;
-            border: 1px solid #30363d;
+            margin: 6px auto;
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+        .bet-adjuster {
+            flex: 1;
+            background: #121b26;
+            border: 1px solid #1e293b;
+            border-radius: 8px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding: 4px 10px;
         }
-        .bet-box {
-            display: inline-flex;
-            align-items: center;
-            background: #0d1117;
-            border: 1px solid #30363d;
-            border-radius: 6px;
-            padding: 3px 8px;
-        }
-        .bet-box button {
-            background: none;
-            border: none;
+        .bet-ctrl-btn {
+            background: #1a2634;
+            border: 1px solid #2a3b4c;
             color: #fff;
             font-size: 16px;
+            width: 28px;
+            height: 28px;
+            border-radius: 4px;
             cursor: pointer;
-            padding: 0 8px;
-        }
-        .action-btns {
-            max-width: 440px;
-            margin: 8px auto;
-            display: flex;
-            gap: 6px;
-        }
-        .btn-action {
-            background-color: #21262d;
-            color: #fff;
-            border: 1px solid #30363d;
-            padding: 9px;
-            font-size: 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            flex: 1;
             font-weight: bold;
-            transition: 0.2s;
         }
-        .btn-action:hover { background-color: #30363d; }
-        
+        .quick-btn {
+            background: #121b26;
+            border: 1px solid #1e293b;
+            color: #00ff88;
+            padding: 10px 12px;
+            font-size: 12px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        /* Main BET Button */
         .bet-btn {
             background: linear-gradient(135deg, #00ff88, #00b4d8);
-            color: #0a0e17;
+            color: #0b1118;
             border: none;
             width: 100%;
             max-width: 440px;
             padding: 13px;
-            font-size: 16px;
-            font-weight: 800;
+            font-size: 18px;
+            font-weight: 900;
             border-radius: 8px;
             cursor: pointer;
-            margin-top: 5px;
-            box-shadow: 0 4px 15px rgba(0,255,136,0.3);
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 12px rgba(0, 255, 136, 0.3);
+            margin: 4px auto;
         }
         .bet-btn:disabled {
-            background: #374151;
-            color: #9ca3af;
+            background: #1e293b;
+            color: #64748b;
             box-shadow: none;
             cursor: not-allowed;
         }
 
-        .status-bar {
+        /* Bottom Nav Bar (Like Screenshot) */
+        .bottom-nav {
             max-width: 440px;
-            margin: 8px auto;
-            background: var(--panel-bg);
-            padding: 8px;
+            margin: 8px auto 0 auto;
+            background: #121b26;
+            border: 1px solid #1e293b;
             border-radius: 8px;
-            font-size: 13px;
-            border: 1px solid #30363d;
-            text-align: center;
-        }
-        .history-box {
-            max-width: 440px;
-            margin: 8px auto;
-            background: #0d1117;
-            border: 1px solid #30363d;
-            padding: 8px;
-            border-radius: 8px;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
             font-size: 11px;
+            color: #64748b;
+            font-weight: bold;
+        }
+        .bottom-nav div {
+            cursor: pointer;
+        }
+        .bottom-nav div.active {
+            color: #00ff88;
+        }
+
+        /* History & Status Box */
+        .info-box {
+            max-width: 440px;
+            margin: 6px auto;
+            background: #121b26;
+            border: 1px solid #1e293b;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 12px;
             text-align: left;
-            max-height: 90px;
-            overflow-y: auto;
-            color: var(--text-muted);
         }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h2>🎰 VIP PRO VIRTUAL KENO</h2>
-        <div class="stats-row">
-            <div>ቀሪ ሒሳብ: <span id="user-balance">50.00</span> ብር</div>
-            <div>የተመቱ: <span id="match-count" style="color:var(--accent-green);">0</span> / <span id="selected-count">0</span></div>
-        </div>
+    <div class="top-bar">
+        <div class="logo">⚡ FAST KENO</div>
+        <div class="timer-box" id="timer-display">00:30</div>
+        <div class="balance-box">ባላንስ: <span id="user-balance">50.00</span></div>
+    </div>
+
+    <div class="banner">
+        Choose up to 10 numbers | የተመረጡ: <span id="selected-count" style="color:#00ff88;">0</span>/10
     </div>
 
     <div class="grid" id="keno-grid"></div>
 
-    <div class="controls-panel">
-        <span style="font-size: 12px; color: var(--text-muted);">የውርርድ መጠን:</span>
-        <div class="bet-box">
-            <button onclick="changeBet(-5)">-</button>
-            <span id="bet-amount" style="font-size: 15px; font-weight: bold; margin: 0 8px; color: var(--accent-green);">10 ETB</span>
-            <button onclick="changeBet(5)">+</button>
+    <div class="controls-row">
+        <div class="bet-adjuster">
+            <button class="bet-ctrl-btn" onclick="changeBet(-5)">-</button>
+            <span id="bet-amount" style="font-size: 15px; font-weight: bold; color: #00ff88;">10 ETB</span>
+            <button class="bet-ctrl-btn" onclick="changeBet(5)">+</button>
         </div>
+        <button class="quick-btn" onclick="quickPick()">🎲 Quick Pick</button>
+        <button class="quick-btn" onclick="clearSelection()" style="color: #ef4444;">🗑️ Clear</button>
     </div>
 
-    <div class="action-btns">
-        <button class="btn-action" onclick="quickPick()">🎲 አውቶማቲክ (Quick Pick)</button>
-        <button class="btn-action" onclick="clearSelection()" style="color: #ff7b72;">🗑️ አጽዳ (Clear)</button>
+    <button class="bet-btn" id="bet-button" onclick="startDraw()">BET</button>
+
+    <div class="info-box" id="status-text" style="text-align: center; color: #f59e0b; font-weight: bold;">
+        አዲስ ዙር ለመጀመር ቁጥሮችን ይምረጡ
     </div>
 
-    <button class="bet-btn" id="bet-button" onclick="startDraw()">ውርርድ ጀምር (BET)</button>
-
-    <div class="status-bar" id="status-text">
-        አዲስ ዙር ለመጀመር ከ 1 እስከ 10 ቁጥሮች ይምረጡ
+    <div class="info-box" style="max-height: 70px; overflow-y: auto;">
+        <div style="color: #ff9800; font-weight: bold; margin-bottom: 2px;">📜 የጨዋታ ታሪክ (History):</div>
+        <div id="history-content" style="color: #94a3b8; font-size: 11px;">እስካሁን የተደረገ ጨዋታ የለም</div>
     </div>
 
-    <div class="history-box">
-        <div style="font-weight: bold; color: var(--accent-orange); margin-bottom: 2px;">📜 የጨዋታ ታሪክ (History):</div>
-        <div id="history-content">እስካሁን የተደረገ ጨዋታ የለም</div>
+    <div class="bottom-nav">
+        <div class="active">▶ GAME</div>
+        <div>🕒 HISTORY</div>
+        <div>✔ RESULTS</div>
+        <div>📊 STATS</div>
     </div>
 
     <script>
-        let balance = localStorage.getItem('keno_pro_balance') ? parseFloat(localStorage.getItem('keno_pro_balance')) : 50.00;
+        let balance = localStorage.getItem('fast_keno_bal') ? parseFloat(localStorage.getItem('fast_keno_bal')) : 50.00;
         let bet = 10;
         let selectedNumbers = [];
         let winningNumbers = [];
         let isPlaying = false;
-        let gameHistory = JSON.parse(localStorage.getItem('keno_pro_history')) || [];
+        let gameHistory = JSON.parse(localStorage.getItem('fast_keno_hist')) || [];
 
         const gridEl = document.getElementById('keno-grid');
         const balanceEl = document.getElementById('user-balance');
         const betAmountEl = document.getElementById('bet-amount');
         const selectedCountEl = document.getElementById('selected-count');
-        const matchCountEl = document.getElementById('match-count');
         const statusTextEl = document.getElementById('status-text');
         const betBtnEl = document.getElementById('bet-button');
+        const timerDisplayEl = document.getElementById('timer-display');
         const historyContentEl = document.getElementById('history-content');
 
         balanceEl.innerText = balance.toFixed(2);
         updateHistoryUI();
 
-        // 80 Grid generation
         for (let i = 1; i <= 80; i++) {
             const btn = document.createElement('button');
             btn.className = 'cell';
@@ -251,7 +278,6 @@
 
         function toggleNumber(num, btn) {
             if (isPlaying) return;
-            
             const index = selectedNumbers.indexOf(num);
             if (index > -1) {
                 selectedNumbers.splice(index, 1);
@@ -267,9 +293,9 @@
             selectedNumbers.sort((a, b) => a - b);
             selectedCountEl.innerText = selectedNumbers.length;
             if (selectedNumbers.length > 0) {
-                statusTextEl.innerText = `ተመርጧል: ${selectedNumbers.join(', ')}`;
+                statusTextEl.innerText = "ቁጥሮች ተመርጠዋል! BET የሚለውን ይጫኑ";
             } else {
-                statusTextEl.innerText = "አዲስ ዙር ለመጀመር ከ 1 እስከ 10 ቁጥሮች ይምረጡ";
+                statusTextEl.innerText = "አዲስ ዙር ለመጀመር ቁጥሮችን ይምረጡ";
             }
         }
 
@@ -284,27 +310,21 @@
             }
             selectedNumbers.sort((a, b) => a - b);
             selectedCountEl.innerText = selectedNumbers.length;
-
             const cells = gridEl.getElementsByClassName('cell');
             for (let cell of cells) {
                 let num = parseInt(cell.innerText);
-                if (selectedNumbers.includes(num)) {
-                    cell.classList.add('selected');
-                }
+                if (selectedNumbers.includes(num)) cell.classList.add('selected');
             }
-            statusTextEl.innerText = `🎲 Quick Pick: ${selectedNumbers.join(', ')}`;
+            statusTextEl.innerText = "🎲 Quick Pick ተሳክቷል!";
         }
 
         function clearSelection() {
             if (isPlaying) return;
             selectedNumbers = [];
             selectedCountEl.innerText = "0";
-            matchCountEl.innerText = "0";
             const cells = gridEl.getElementsByClassName('cell');
-            for (let cell of cells) {
-                cell.classList.remove('selected', 'drawn', 'matched');
-            }
-            statusTextEl.innerText = "ቦርዱ ጸድቷል፣ አዲስ ቁጥሮችን ይምረጡ።";
+            for (let cell of cells) cell.classList.remove('selected', 'drawn', 'matched');
+            statusTextEl.innerText = "ቦርዱ ጸድቷል";
         }
 
         function changeBet(amount) {
@@ -318,32 +338,30 @@
         function startDraw() {
             if (isPlaying) return;
             if (selectedNumbers.length === 0) {
-                statusTextEl.innerText = "⚠️ እባክዎ ቢያንስ 1 ቁጥር ይምረጡ!";
+                statusTextEl.innerText = "⚠️ ቢያንስ 1 ቁጥር ይምረጡ!";
                 return;
             }
             if (balance < bet) {
-                statusTextEl.innerText = "⚠️ የቂሪ ሒሳብዎ በቂ አይደለም!";
+                statusTextEl.innerText = "⚠️ ሂሳብዎ በቂ አይደለም!";
                 return;
             }
 
             clearBoardVisuals();
-
             balance -= bet;
             balanceEl.innerText = balance.toFixed(2);
             saveData();
 
             isPlaying = true;
             betBtnEl.disabled = true;
-            betBtnEl.style.opacity = "0.6";
 
             let countdown = 30;
-            statusTextEl.innerText = `⏳ እጣ ለመውጣት ${countdown} ሰኮንድ ይቀረዋል...`;
+            timerDisplayEl.innerText = `00:${countdown < 10 ? '0' : ''}${countdown}`;
+            statusTextEl.innerText = "⏳ ቆጠራ በመሄድ ላይ...";
 
             let timer = setInterval(() => {
                 countdown--;
-                if (countdown > 0) {
-                    statusTextEl.innerText = `⏳ እጣ ለመውጣት ${countdown} ሰኮንድ ይቀረዋል...`;
-                } else {
+                timerDisplayEl.innerText = `00:${countdown < 10 ? '0' : ''}${countdown}`;
+                if (countdown <= 0) {
                     clearInterval(timer);
                     runDrawProcess();
                 }
@@ -351,43 +369,30 @@
         }
 
         function runDrawProcess() {
-            statusTextEl.innerText = "🎲 20 እጣዎች በደማቅ ሁኔታ እየወጡ ነው...";
+            statusTextEl.innerText = "🎲 20 እጣዎች እየወጡ ነው...";
             winningNumbers = [];
-
             while (winningNumbers.length < 20) {
                 let rand = Math.floor(Math.random() * 80) + 1;
-                if (!winningNumbers.includes(rand)) {
-                    winningNumbers.push(rand);
-                }
+                if (!winningNumbers.includes(rand)) winningNumbers.push(rand);
             }
 
             const cells = gridEl.getElementsByClassName('cell');
             for (let cell of cells) {
                 let num = parseInt(cell.innerText);
                 if (winningNumbers.includes(num)) {
-                    if (selectedNumbers.includes(num)) {
-                        cell.classList.add('matched');
-                    } else {
-                        cell.classList.add('drawn');
-                    }
+                    if (selectedNumbers.includes(num)) cell.classList.add('matched');
+                    else cell.classList.add('drawn');
                 }
             }
 
             let matches = selectedNumbers.filter(n => winningNumbers.includes(n)).length;
-            matchCountEl.innerText = matches;
-            let winAmount = 0;
-
-            if (matches >= 3) {
-                winAmount = bet * matches * 2.2;
-            } else if (matches === 2) {
-                winAmount = bet * 1.5;
-            }
+            let winAmount = matches >= 3 ? bet * matches * 2 : (matches === 2 ? bet * 1.5 : 0);
 
             if (winAmount > 0) {
                 balance += winAmount;
-                statusTextEl.innerHTML = `🎉 <span style="color:var(--accent-green)">እንኳን ደስ አሎት!</span> ${matches} ቁጥር ገጥመዋል (+${winAmount.toFixed(2)} ብር)`;
+                statusTextEl.innerHTML = `🎉 <span style="color:#00ff88;">አሸንፈዋል!</span> ${matches} ገጥሟል (+${winAmount.toFixed(2)} ብር)`;
             } else {
-                statusTextEl.innerHTML = `😢 <span style="color:var(--accent-red)">አሳዛኝ ነው!</span> ${matches} ቁጥር ብቻ ገጥመዋል።`;
+                statusTextEl.innerHTML = `😢 <span style="color:#ef4444;">አልገጠመም!</span> ${matches} ቁጥር ብቻ።`;
             }
 
             balanceEl.innerText = balance.toFixed(2);
@@ -396,40 +401,30 @@
             let historyItem = `ግጥሚያ: ${matches}/${selectedNumbers.length} | ሽልማት: +${winAmount.toFixed(2)} ብር`;
             gameHistory.unshift(historyItem);
             if (gameHistory.length > 5) gameHistory.pop();
-            localStorage.setItem('keno_pro_history', JSON.stringify(gameHistory));
+            localStorage.setItem('fast_keno_hist', JSON.stringify(gameHistory));
             updateHistoryUI();
 
-            setTimeout(() => {
-                resetGameForNextRound();
-            }, 6000);
+            setTimeout(() => { resetGame(); }, 5000);
         }
 
         function clearBoardVisuals() {
             const cells = gridEl.getElementsByClassName('cell');
-            for (let cell of cells) {
-                cell.classList.remove('drawn', 'matched');
-            }
-            matchCountEl.innerText = "0";
+            for (let cell of cells) cell.classList.remove('drawn', 'matched');
         }
 
-        function resetGameForNextRound() {
+        function resetGame() {
             isPlaying = false;
             betBtnEl.disabled = false;
-            betBtnEl.style.opacity = "1";
-            winningNumbers = [];
+            timerDisplayEl.innerText = "00:30";
             selectedNumbers = [];
             selectedCountEl.innerText = "0";
-            matchCountEl.innerText = "0";
-            
             const cells = gridEl.getElementsByClassName('cell');
-            for (let cell of cells) {
-                cell.classList.remove('selected', 'drawn', 'matched');
-            }
+            for (let cell of cells) cell.classList.remove('selected', 'drawn', 'matched');
             statusTextEl.innerText = "አዲስ ዙር ለመጀመር ቁጥሮችን ይምረጡ";
         }
 
         function saveData() {
-            localStorage.setItem('keno_pro_balance', balance);
+            localStorage.setItem('fast_keno_bal', balance);
         }
 
         function updateHistoryUI() {
