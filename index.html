@@ -25,37 +25,74 @@
             color: #38bdf8;
             margin-bottom: 15px;
         }
-        .telebirr-box {
-            background: #0f172a;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 20px;
-            border: 1px solid #334155;
-        }
-        input {
-            width: 80%;
-            padding: 10px;
-            font-size: 16px;
-            margin-bottom: 10px;
-            border-radius: 6px;
-            border: 1px solid #475569;
-            background: #1e293b;
+        .btn-deposit {
+            background-color: #10b981;
             color: white;
-            text-align: center;
-        }
-        button {
-            background-color: #0284c7;
-            color: white;
-            padding: 12px 20px;
-            font-size: 16px;
+            padding: 14px 20px;
+            font-size: 18px;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
             width: 100%;
             font-weight: bold;
+            margin-top: 20px;
         }
-        button:hover {
-            background-color: #0ea5e9;
+        .btn-deposit:hover {
+            background-color: #059669;
+        }
+        /* የሞዳል (Popup) መስኮት ዲዛይን */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #1e293b;
+            padding: 25px;
+            border-radius: 12px;
+            width: 85%;
+            max-width: 320px;
+            border: 1px solid #334155;
+            text-align: center;
+        }
+        input {
+            width: 90%;
+            padding: 12px;
+            font-size: 16px;
+            margin: 15px 0;
+            border-radius: 6px;
+            border: 1px solid #475569;
+            background: #0f172a;
+            color: white;
+            text-align: center;
+        }
+        .btn-submit {
+            background-color: #0284c7;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            font-weight: bold;
+        }
+        .close-btn {
+            color: #aaa;
+            float: right;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close-btn:hover {
+            color: white;
         }
     </style>
 </head>
@@ -65,18 +102,36 @@
         <h2>Beteseb Plus Keno</h2>
         <p>እንኳን ወደ ኬኖ ጨዋታ በደህና መጡ!</p>
 
-        <!-- የቴሌብር ባላንስ መሙያ ክፍል -->
-        <div class="telebirr-box">
-            <h3>ቴሌብር በመጠቀም ባላንስ ይሙሉ</h3>
-            <input type="number" id="amountInput" placeholder="የብር መጠን (ETB)" value="50">
+        <!-- የዲፖዚት (Deposit) ቁልፍ -->
+        <button class="btn-deposit" onclick="openDepositModal()">Deposit (ባላንስ መሙያ)</button>
+    </div>
+
+    <!-- የገንዘብ መጠን የሚጽፉበት ፖፕአፕ መስኮት (Modal) -->
+    <div id="depositModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeDepositModal()">&times;</span>
+            <h3>የባላንስ ማሟያ</h3>
+            <p style="font-size: 14px; color: #94a3b8;">እባክዎ ማስገባት የሚፈልጉትን የብር መጠን ይፃፉ፡</p>
+            
+            <input type="number" id="amountInput" placeholder="ለምሳሌ: 100" value="50">
             <br>
-            <button onclick="addHenokBalance()">በቴሌብር (Telebirr) ኪስዎትን ይሙሉ</button>
+            <button class="btn-submit" onclick="submitDeposit()">OK (አረጋግጥ)</button>
         </div>
     </div>
 
     <script>
-        // የቴሌብር ዌብሁክ እና ባላንስ መሙያ ፌንክሽን
-        function addHenokBalance() {
+        // ፖፕአፕ መስኮቱን መክፈቻ
+        function openDepositModal() {
+            document.getElementById('depositModal').style.display = 'flex';
+        }
+
+        // ፖፕአፕ መስኮቱን መዘጊያ
+        function closeDepositModal() {
+            document.getElementById('depositModal').style.display = 'none';
+        }
+
+        // OK ሲሉ የሚሰራው እና እንደ ቦት መረጃ የሚያሳየው ፌንክሽን
+        function submitDeposit() {
             const amount = document.getElementById('amountInput').value;
             
             if (!amount || amount <= 0) {
@@ -84,6 +139,18 @@
                 return;
             }
 
+            // የቦቱን ያህል ዝርዝር መረጃ በ Alert ማሳየት
+            alert("የጠየቁት የብር መጠን: " + amount + " ETB\n" +
+                  "-----------------------------------\n" +
+                  " ገንዘብ የሚላክበት የቴሌብር አድራሻ:\n" +
+                  " ስም: henok\n" +
+                  " ስልክ ቁጥር: 0980306278\n" +
+                  "-----------------------------------\n" +
+                  "እባክዎ ገንዘቡን ከላኩ በኋላ ያረጋግጡ!");
+
+            closeDepositModal();
+
+            // ሰርቨር ላይ ዌብሁኩን የማስተላለፍ ሂደት
             fetch('http://127.0.0.1:8000/api/telebirr-webhook', { 
                 method: 'POST', 
                 headers: { 
@@ -92,21 +159,18 @@
                 body: JSON.stringify({
                     outTradeNo: "TXN_" + Date.now(), 
                     totalAmount: amount.toString(), 
-                    userId: "0980306278", // የሄኖክ ስልክ ቁጥር
+                    userId: "0980306278", 
                     status: "COMPLETED" 
                 }) 
             })
             .then(response => response.json()) 
             .then(data => { 
                 if (data.status === "success") { 
-                    alert("የቴሌብር ባላንስ በተሳካ ሁኔታ ተሞልቷል!"); 
-                } else {
-                    alert("ክፍያው አልተሳካም፣ እባክዎ እንደገና ይሞክሩ።");
+                    console.log("ባላንስ በስኬት ተዘምኗል"); 
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert("ከሰርቨር ጋር መገናኘት አልተቻለም!");
             });
         }
     </script>
