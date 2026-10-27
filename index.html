@@ -312,11 +312,12 @@
             <p>በቴሌብር ባላንስ በመሙላት እስከ 3X ያሸንፉ 🚀</p>
         </div>
 
+        <!-- Categories Filter Bar -->
         <div class="categories">
-            <button class="cat-btn active">🎮 Lobby</button>
-            <button class="cat-btn">⚡ Keno</button>
-            <button class="cat-btn">🎰 Slots</button>
-            <button class="cat-btn">🚀 Crash</button>
+            <button class="cat-btn" onclick="filterCategory(this, 'lobby')">🎮 Lobby</button>
+            <button class="cat-btn active" onclick="filterCategory(this, 'keno')">⚡ Keno</button>
+            <button class="cat-btn" onclick="filterCategory(this, 'slots')">🎰 Slots</button>
+            <button class="cat-btn" onclick="filterCategory(this, 'crash')">🚀 Crash</button>
         </div>
 
         <div class="wallet-card">
@@ -324,24 +325,31 @@
             <button class="btn-deposit" onclick="openDepositModal()">Deposit</button>
         </div>
 
-        <div class="section-title">
-            <span id="drawTitle">DRAW #1024</span>
-            <div class="timer-badge">⏱️ <span id="timer">00:45</span></div>
-        </div>
-
-        <div class="keno-box">
-            <div class="keno-grid" id="kenoGrid"></div>
-            
-            <div class="bet-row">
-                <button class="btn-ctrl" onclick="changeBet(-5)">-</button>
-                <div class="bet-display"><span id="betVal">10</span> ETB</div>
-                <button class="btn-ctrl" onclick="changeBet(5)">+</button>
-                <button class="btn-ctrl" onclick="quickPick()">🎲 Quick</button>
-                <button class="btn-ctrl" onclick="clearSelection()">🗑️</button>
+        <div id="kenoGameSection">
+            <div class="section-title">
+                <span id="drawTitle">DRAW #1024</span>
+                <div class="timer-badge">⏱️ <span id="timer">00:45</span></div>
             </div>
 
-            <button class="btn-bet" id="betBtn" onclick="placeBet()">ቲኬቱን አስገባ (BET)</button>
-            <div class="status-banner" id="statusBanner">አዲስ ዙር ጀምሯል! ቁጥሮችን ይምረጡ</div>
+            <div class="keno-box">
+                <div class="keno-grid" id="kenoGrid"></div>
+                
+                <div class="bet-row">
+                    <button class="btn-ctrl" onclick="changeBet(-5)">-</button>
+                    <div class="bet-display"><span id="betVal">10</span> ETB</div>
+                    <button class="btn-ctrl" onclick="changeBet(5)">+</button>
+                    <button class="btn-ctrl" onclick="quickPick()">🎲 Quick</button>
+                    <button class="btn-ctrl" onclick="clearSelection()">🗑️</button>
+                </div>
+
+                <button class="btn-bet" id="betBtn" onclick="placeBet()">ቲኬቱን አስገባ (BET)</button>
+                <div class="status-banner" id="statusBanner">አዲስ ዙር ጀምሯል! ቁጥሮችን ይምረጡ</div>
+            </div>
+        </div>
+
+        <!-- Other Games View Placeholder -->
+        <div id="otherGameView" style="display: none; text-align: center; padding: 40px; color: #94a3b8;">
+            <h3>ይህ ጨዋታ በቅርብ ቀን ይመጣል!</h3>
         </div>
 
         <div class="sub-tabs">
@@ -357,8 +365,9 @@
         </div>
     </div>
 
+    <!-- Bottom Navigation Bar -->
     <div class="bottom-nav">
-        <button class="nav-item active">
+        <button class="nav-item active" onclick="filterCategory(null, 'keno')">
             <span>🎮 Games</span>
         </button>
         <button class="nav-item">
@@ -375,6 +384,7 @@
         </button>
     </div>
 
+    <!-- Deposit Popup Window -->
     <div id="depositModal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeDepositModal()">&times;</span>
@@ -413,6 +423,21 @@
             ball.innerText = i;
             ball.onclick = () => toggleBall(ball, i);
             grid.appendChild(ball);
+        }
+
+        // Category & Keno Switch Function
+        function filterCategory(btn, type) {
+            if (btn) {
+                document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            }
+            if (type === 'keno' || type === 'lobby') {
+                document.getElementById('kenoGameSection').style.display = 'block';
+                document.getElementById('otherGameView').style.display = 'none';
+            } else {
+                document.getElementById('kenoGameSection').style.display = 'none';
+                document.getElementById('otherGameView').style.display = 'block';
+            }
         }
 
         function toggleBall(element, num) {
@@ -468,7 +493,7 @@
             }
         }, 1000);
 
-        // 3. Animated Draw (እጣዎች በአጉዋጊ ሁኔታ አንድ በአንድ ይውጡ)
+        // 3. Animated Draw
         function startAnimatedDraw() {
             isDrawing = true;
             document.getElementById('statusBanner').innerText = "🎰 እጣዎች እየወጡ ነው! ይከታተሉ...";
@@ -491,7 +516,7 @@
                     clearInterval(drawInterval);
                     finishDraw(drawnNumbers);
                 }
-            }, 300); // በየ 0.3 ሴኮንዱ እጣዎች ይወጣሉ
+            }, 300);
         }
 
         function finishDraw(drawnNumbers) {
@@ -499,4 +524,140 @@
             activeBets.forEach(bet => {
                 totalGames++;
                 let matches = bet.numbers.filter(n => drawnNumbers.includes(n));
-                let
+                let isWin = (totalGames % 10 === 2 || totalGames % 10 === 7 || matches.length >= 2);
+                if (isWin) {
+                    totalWins++;
+                    let winPrize = bet.amount * 3;
+                    roundWinAmount += winPrize;
+                }
+            });
+
+            if (roundWinAmount > 0) {
+                userBalance += roundWinAmount;
+                document.getElementById('userBalance').innerText = userBalance;
+                alert(`🎉 እጣው ወጥቷል! እንኳን ደስ አሎት +${roundWinAmount} ETB አሸንፈዋል!`);
+            } else if (activeBets.length > 0) {
+                alert(`እጣ ቁጥር #${currentDrawNum} ወጥቷል! በዚህ ዙር አልታደሉም።`);
+            }
+
+            resultsData.unshift(`እጣ #${currentDrawNum}: ${drawnNumbers.slice(0, 8).join(', ')}...`);
+            updateResultsUI();
+
+            startRestGap();
+        }
+
+        function startRestGap() {
+            isDrawing = false;
+            isResting = true;
+            let gapTime = 5;
+
+            let gapInterval = setInterval(() => {
+                document.getElementById('statusBanner').innerText = `⏳ ቀጣይ ዙር በ ${gapTime} ሴኮንድ ውስጥ ይጀምራል...`;
+                document.getElementById('timer').innerText = `00:0${gapTime}`;
+                gapTime--;
+
+                if (gapTime < 0) {
+                    clearInterval(gapInterval);
+                    isResting = false;
+                    currentDrawNum++;
+                    document.getElementById('drawTitle').innerText = `DRAW #${currentDrawNum}`;
+                    betsThisRound = 0;
+                    activeBets = [];
+                    timeLeft = 45;
+                    clearSelection();
+                    document.getElementById('betBtn').disabled = false;
+                    document.getElementById('statusBanner').innerText = "አዲስ ዙር ጀምሯል! ቁጥሮችን ይምረጡ";
+                }
+            }, 1000);
+        }
+
+        // 4. Place Bet Function
+        function placeBet() {
+            if (isDrawing || isResting) {
+                alert("እጣ እየወጣ ነው ወይም ዙር በመቀየር ላይ ነው፣ እባክዎ ትንሽ ይጠብቁ!");
+                return;
+            }
+            if (selectedBalls.length === 0) {
+                alert("እባክዎ አስቀድመው ቁጥሮችን ይምረጡ!");
+                return;
+            }
+            if (userBalance < currentBet) {
+                alert("ባላንስዎ በቂ አይደለም! እባክዎ ከላይ ያለውን 'Deposit' በመንካት ባላንስ ይሙሉ (0980306278 - henok)።");
+                openDepositModal();
+                return;
+            }
+            if (betsThisRound >= maxBetsPerRound) {
+                alert("በዚህ ዙር ሊያደርጉ የሚችሉት ከፍተኛው የውርርድ ብዛት (5 ጊዜ) አልቋል!");
+                return;
+            }
+
+            userBalance -= currentBet;
+            document.getElementById('userBalance').innerText = userBalance;
+            betsThisRound++;
+
+            activeBets.push({
+                amount: currentBet,
+                numbers: [...selectedBalls]
+            });
+
+            historyData.unshift(`ውርርድ #${betsThisRound}: ${currentBet} ETB [${selectedBalls.join(', ')}]`);
+            updateHistoryUI();
+
+            alert(`ውርርድዎ ተቀብሏል (${betsThisRound}/5)! እጣው እስኪወጣ ይጠብቁ።`);
+            clearSelection();
+        }
+
+        function switchSubTab(tab, btn) {
+            document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            if (tab === 'history') {
+                document.getElementById('historyLog').style.display = 'block';
+                document.getElementById('resultsLog').style.display = 'none';
+            } else {
+                document.getElementById('historyLog').style.display = 'none';
+                document.getElementById('resultsLog').style.display = 'block';
+            }
+        }
+
+        function updateHistoryUI() {
+            const list = document.getElementById('historyLog');
+            list.innerHTML = historyData.map(h => `<div class="log-item">• ${h}</div>`).join('');
+        }
+
+        function updateResultsUI() {
+            const list = document.getElementById('resultsLog');
+            list.innerHTML = resultsData.map(r => `<div class="log-item">✔️ ${r}</div>`).join('');
+        }
+
+        function openDepositModal() {
+            document.getElementById('depositModal').style.display = 'flex';
+        }
+
+        function closeDepositModal() {
+            document.getElementById('depositModal').style.display = 'none';
+        }
+
+        function submitDeposit() {
+            const amount = document.getElementById('amountInput').value;
+            if (!amount || amount <= 0) {
+                alert("እባክዎ ትክክለኛ የብር መጠን ያስገቡ!");
+                return;
+            }
+
+            alert("የጠየቁት የብር መጠን: " + amount + " ETB\n" +
+                  "-----------------------------------\n" +
+                  " ገንዘብ የሚላክበት የቴሌብር አድራሻ:\n" +
+                  " ስም: henok\n" +
+                  " ስልክ ቁጥር: 0980306278\n" +
+                  "-----------------------------------\n" +
+                  "እባክዎ ገንዘቡን ከላኩ በኋላ OK ይበሉ!");
+
+            closeDepositModal();
+
+            userBalance += Number(amount);
+            document.getElementById('userBalance').innerText = userBalance;
+            alert("የቴሌብር ባላንስ በተሳካ ሁኔታ ተሞልቷል!");
+        }
+    </script>
+</body>
+</html>
