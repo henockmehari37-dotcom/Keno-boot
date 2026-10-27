@@ -26,7 +26,6 @@
             padding: 15px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.5);
         }
-        /* Top Header & Deposit Section */
         .top-bar {
             display: flex;
             justify-content: space-between;
@@ -52,8 +51,6 @@
             cursor: pointer;
             font-weight: bold;
         }
-
-        /* Timer and Game Info Header */
         .game-header {
             display: flex;
             justify-content: space-between;
@@ -72,8 +69,6 @@
             color: #94a3b8;
             font-size: 12px;
         }
-
-        /* Keno Grid */
         .keno-grid {
             display: grid;
             grid-template-columns: repeat(10, 1fr);
@@ -92,15 +87,18 @@
             user-select: none;
         }
         .ball.selected {
-            background: #f59e0b;
-            color: #000;
+            background: #f59e0b !important;
+            color: #000 !important;
         }
         .ball.drawn {
-            background: #10b981;
-            color: #fff;
+            background: #10b981 !important;
+            color: #fff !important;
         }
-
-        /* Betting Control Bar */
+        .ball.matched {
+            background: #ef4444 !important;
+            color: #fff !important;
+            font-weight: bold;
+        }
         .bet-controls {
             display: flex;
             gap: 6px;
@@ -123,8 +121,6 @@
             color: #10b981;
             font-size: 16px;
         }
-
-        /* Main BET Button */
         .btn-main-bet {
             width: 100%;
             background: #10b981;
@@ -143,8 +139,6 @@
             margin-bottom: 15px;
             text-align: center;
         }
-
-        /* Tab Content Views */
         .tab-content {
             display: none;
             max-height: 250px;
@@ -163,8 +157,6 @@
             padding: 6px 0;
             border-bottom: 1px solid #334155;
         }
-
-        /* Navigation Tabs */
         .nav-tabs {
             display: flex;
             justify-content: space-around;
@@ -182,8 +174,6 @@
         .tab-btn.active {
             color: #10b981;
         }
-
-        /* Modal / Deposit Popup */
         .modal {
             display: none;
             position: fixed;
@@ -237,19 +227,16 @@
 <body>
 
     <div class="main-card">
-        <!-- Top Balance & Deposit Bar -->
         <div class="top-bar">
             <div class="balance-box">ባላንስ: <span id="userBalance">0</span> ETB</div>
             <button class="btn-deposit-top" onclick="openDepositModal()">Deposit</button>
         </div>
 
-        <!-- Timer Header -->
         <div class="game-header">
             <div class="draw-id" id="drawId">DRAW #1024</div>
             <div class="timer-box">⏱️ <span id="timer">00:45</span></div>
         </div>
 
-        <!-- GAME VIEW -->
         <div id="gameView" class="tab-content active-tab">
             <div class="keno-grid" id="kenoGrid"></div>
             
@@ -265,27 +252,23 @@
             <div class="status-msg" id="statusMsg">አዲስ ዙር ጀምሯል! ቁጥሮችን ይምረጡ</div>
         </div>
 
-        <!-- HISTORY VIEW -->
         <div id="historyView" class="tab-content">
             <h4 style="color:#38bdf8; margin-bottom:8px;">የውርርዶች ታሪክ (History)</h4>
             <div id="historyList">ገና ምንም ውርርድ የለም</div>
         </div>
 
-        <!-- RESULTS VIEW -->
         <div id="resultsView" class="tab-content">
             <h4 style="color:#10b981; margin-bottom:8px;">የእጣ ውጤቶች (Results)</h4>
             <div id="resultsList">ገና ምንም እጣ አልወጣም</div>
         </div>
 
-        <!-- STATS VIEW -->
         <div id="statsView" class="tab-content">
             <h4 style="color:#f59e0b; margin-bottom:8px;">ስታቲስቲክስ (Stats)</h4>
             <p>ጠቅላላ የተጫወቱት: <span id="statTotalGames">0</span></p>
             <p>ያሸነፏቸው: <span id="statWins">0</span></p>
-            <p>የማሸነፍ ሬሾ: 2 ከ 10 (20%)</p>
+            <p>የማሸነፍ እድል: 20%</p>
         </div>
 
-        <!-- Navigation Tabs -->
         <div class="nav-tabs">
             <button class="tab-btn active" onclick="switchTab('gameView', this)">▶ GAME</button>
             <button class="tab-btn" onclick="switchTab('historyView', this)">🕒 HISTORY</button>
@@ -294,7 +277,6 @@
         </div>
     </div>
 
-    <!-- Deposit Popup Window -->
     <div id="depositModal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeDepositModal()">&times;</span>
@@ -310,25 +292,32 @@
     <script>
         let userBalance = 0;
         let selectedBalls = [];
+        let activeBets = [];
         let currentBet = 10;
         let betsThisRound = 0;
         let maxBetsPerRound = 5;
         let timeLeft = 45;
         let totalGames = 0;
         let totalWins = 0;
+        let currentDrawNum = 1024;
         
         let historyData = [];
         let resultsData = [];
 
-        // 1. Generate 80 Balls
+        // 1. Render Keno Grid
         const grid = document.getElementById('kenoGrid');
-        for (let i = 1; i <= 80; i++) {
-            const ball = document.createElement('div');
-            ball.className = 'ball';
-            ball.innerText = i;
-            ball.onclick = () => toggleBall(ball, i);
-            grid.appendChild(ball);
+        function initGrid() {
+            grid.innerHTML = '';
+            for (let i = 1; i <= 80; i++) {
+                const ball = document.createElement('div');
+                ball.className = 'ball';
+                ball.id = 'ball-' + i;
+                ball.innerText = i;
+                ball.onclick = () => toggleBall(ball, i);
+                grid.appendChild(ball);
+            }
         }
+        initGrid();
 
         function toggleBall(element, num) {
             if (element.classList.contains('selected')) {
@@ -346,166 +335,81 @@
 
         function clearSelection() {
             selectedBalls = [];
-            document.querySelectorAll('.ball').forEach(b => b.classList.remove('selected'));
+            document.querySelectorAll('.ball').forEach(b => {
+                b.classList.remove('selected');
+                b.classList.remove('drawn');
+                b.classList.remove('matched');
+            });
         }
 
         function quickPick() {
             clearSelection();
-            const balls = document.querySelectorAll('.ball');
             while (selectedBalls.length < 5) {
                 const rand = Math.floor(Math.random() * 80) + 1;
                 if (!selectedBalls.includes(rand)) {
                     selectedBalls.push(rand);
-                    balls[rand - 1].classList.add('selected');
+                    document.getElementById('ball-' + rand).classList.add('selected');
                 }
             }
         }
 
-        // 2. Bet Amount Controls
         function changeBet(val) {
             currentBet = Math.max(5, currentBet + val);
             document.getElementById('betVal').innerText = currentBet;
         }
 
-        // 3. Timer & Round Countdown Logic
+        // 2. Countdown and Automatic Draw Logic
         setInterval(() => {
             if (timeLeft > 0) {
                 timeLeft--;
                 let sec = timeLeft < 10 ? "0" + timeLeft : timeLeft;
                 document.getElementById('timer').innerText = `00:${sec}`;
             } else {
-                // Countdown finished -> Draw Numbers
                 runDraw();
                 timeLeft = 45;
-                betsThisRound = 0; // Reset bets limit for new round
             }
         }, 1000);
 
         function runDraw() {
-            // Pick 20 random winning numbers
             let drawnNumbers = [];
             while (drawnNumbers.length < 20) {
                 let r = Math.floor(Math.random() * 80) + 1;
                 if (!drawnNumbers.includes(r)) drawnNumbers.push(r);
             }
 
-            resultsData.unshift(`እጣ ቁጥር #1024 ወጥቷል: ${drawnNumbers.slice(0, 5).join(', ')}...`);
-            updateResultsUI();
-        }
-
-        // 4. Place Bet with Balance & 5 Bets Limit Check
-        function placeBet() {
-            if (userBalance <= 0 || userBalance < currentBet) {
-                alert("ባላንስዎ 0 ነው ወይም በቂ አይደለም! እባክዎ Deposit ያድርጉ።");
-                return;
-            }
-            if (selectedBalls.length === 0) {
-                alert("እባክዎ አስቀድመው ቁጥሮችን ይምረጡ!");
-                return;
-            }
-            if (betsThisRound >= maxBetsPerRound) {
-                alert("በዚህ ዙር ሊያደርጉ የሚችሉት ከፍተኛው የውርርድ ብዛት (5 ጊዜ) አልቋል!");
-                return;
-            }
-
-            // Deduct balance
-            userBalance -= currentBet;
-            document.getElementById('userBalance').innerText = userBalance;
-            betsThisRound++;
-
-            totalGames++;
-            // 2 out of 10 win logic (20% chance or controlled win rate)
-            let isWin = (totalGames % 10 <= 2 && totalGames % 10 !== 0) || (Math.random() < 0.2);
-            if (isWin) {
-                totalWins++;
-                let prize = currentBet * 3; // Win multiplier
-                userBalance += prize;
-                document.getElementById('userBalance').innerText = userBalance;
-                alert(`እንኳን ደስ አሎት! አሸንፈዋል 🎉 +${prize} ETB ተሸልመዋል!`);
-            } else {
-                alert(`ውርርዱ ተቀባይነት አግኝቷል (${betsThisRound}/5)! መልካም እድል!`);
-            }
-
-            // Update History
-            historyData.unshift(`ውርርድ: ${currentBet} ETB [ቁጥሮች: ${selectedBalls.join(', ')}]`);
-            updateHistoryUI();
-            updateStatsUI();
-        }
-
-        // Tab Switching
-        function switchTab(viewId, btn) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active-tab'));
-            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-            document.getElementById(viewId).classList.add('active-tab');
-            btn.classList.add('active');
-        }
-
-        function updateHistoryUI() {
-            const list = document.getElementById('historyList');
-            list.innerHTML = historyData.map(h => `<div class="history-item">• ${h}</div>`).join('');
-        }
-
-        function updateResultsUI() {
-            const list = document.getElementById('resultsList');
-            list.innerHTML = resultsData.map(r => `<div class="result-item">✔️ ${r}</div>`).join('');
-        }
-
-        function updateStatsUI() {
-            document.getElementById('statTotalGames').innerText = totalGames;
-            document.getElementById('statWins').innerText = totalWins;
-        }
-
-        // 5. Deposit Functions
-        function openDepositModal() {
-            document.getElementById('depositModal').style.display = 'flex';
-        }
-
-        function closeDepositModal() {
-            document.getElementById('depositModal').style.display = 'none';
-        }
-
-        function submitDeposit() {
-            const amount = document.getElementById('amountInput').value;
-            if (!amount || amount <= 0) {
-                alert("እባክዎ ትክክለኛ የብር መጠን ያስገቡ!");
-                return;
-            }
-
-            alert("የጠየቁት የብር መጠን: " + amount + " ETB\n" +
-                  "-----------------------------------\n" +
-                  " ገንዘብ የሚላክበት የቴሌብር አድራሻ:\n" +
-                  " ስም: henok\n" +
-                  " ስልክ ቁጥር: 0980306278\n" +
-                  "-----------------------------------\n" +
-                  "እባክዎ ገንዘቡን ከላኩ በኋላ ያረጋግጡ!");
-
-            closeDepositModal();
-
-            fetch('http://127.0.0.1:8000/api/telebirr-webhook', { 
-                method: 'POST', 
-                headers: { 'Content-Type': 'application/json' }, 
-                body: JSON.stringify({
-                    outTradeNo: "TXN_" + Date.now(), 
-                    totalAmount: amount.toString(), 
-                    userId: "0980306278", 
-                    status: "COMPLETED" 
-                }) 
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === "success") {
-                    userBalance += Number(amount);
-                    document.getElementById('userBalance').innerText = userBalance;
-                    alert("የቴሌብር ባላንስ በተሳካ ሁኔታ ተሞልቷል!");
+            // Highlight drawn balls on board
+            document.querySelectorAll('.ball').forEach(b => {
+                let val = parseInt(b.innerText);
+                if (drawnNumbers.includes(val)) {
+                    b.classList.add('drawn');
                 }
-            })
-            .catch(err => {
-                // Fallback simulation if server webhook response is simulated locally
-                userBalance += Number(amount);
-                document.getElementById('userBalance').innerText = userBalance;
-                alert("የቴሌብር ባላንስ በተሳካ ሁኔታ ተሞልቷል!");
             });
-        }
-    </script>
-</body>
-    </html>
+
+            // Process Active Bets
+            let roundWinAmount = 0;
+            activeBets.forEach(bet => {
+                totalGames++;
+                let matches = bet.numbers.filter(n => drawnNumbers.includes(n));
+                
+                // 20% Chance / 2 out of 10 wins logic
+                let isWin = (totalGames % 10 === 2 || totalGames % 10 === 7 || matches.length >= 2);
+                if (isWin) {
+                    totalWins++;
+                    let winPrize = bet.amount * 3;
+                    roundWinAmount += winPrize;
+                }
+            });
+
+            if (roundWinAmount > 0) {
+                userBalance += roundWinAmount;
+                document.getElementById('userBalance').innerText = userBalance;
+                alert(`🎉 እጣው ወጥቷል! እንኳን ደስ አሎት +${roundWinAmount} ETB አሸንፈዋል!`);
+            } else if (activeBets.length > 0) {
+                alert(`እጣ ቁጥር #${currentDrawNum} ወጥቷል! በዚህ ዙር አልታደሉም።`);
+            }
+
+            resultsData.unshift(`እጣ #${currentDrawNum}: ${drawnNumbers.slice(0, 8).join(', ')}...`);
+            updateResultsUI();
+            updateStatsUI();
+
+            // Prepare for
