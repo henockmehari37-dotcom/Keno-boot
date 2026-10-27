@@ -3,112 +3,192 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Beteseb Plus - ኬኖ ጨዋታ</title>
+    <title>Beteseb Plus Bot - Keno</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #121824;
-            color: #ffffff;
+        * {
+            box-sizing: border-box;
             margin: 0;
-            padding: 10px;
-            text-align: center;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
-        .header-bar {
+        body {
+            background-color: #0f172a;
+            color: #ffffff;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+        }
+        .main-card {
+            width: 100%;
+            max-width: 420px;
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+        /* Top Header & Deposit Section */
+        .top-bar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: #1e293b;
-            padding: 10px 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
+            background: #0f172a;
+            padding: 10px 14px;
+            border-radius: 10px;
+            margin-bottom: 12px;
             border: 1px solid #334155;
         }
-        .balance-info {
-            font-size: 16px;
+        .balance-box {
+            font-size: 15px;
             font-weight: bold;
             color: #38bdf8;
         }
-        .btn-deposit {
+        .btn-deposit-top {
             background-color: #10b981;
             color: white;
-            padding: 8px 15px;
-            font-size: 14px;
+            padding: 6px 14px;
+            font-size: 13px;
             border: none;
             border-radius: 6px;
             cursor: pointer;
             font-weight: bold;
         }
-        .btn-deposit:hover {
-            background-color: #059669;
+
+        /* Timer and Game Info Header */
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #0f172a;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 12px;
         }
-        .game-container {
-            background: #1e293b;
-            padding: 15px;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        .timer-box {
+            color: #f59e0b;
+            font-weight: bold;
+            font-size: 14px;
         }
-        /* የኬኖ ቁጥሮች ግሪድ ዲዛይን */
+        .draw-id {
+            color: #94a3b8;
+            font-size: 12px;
+        }
+
+        /* Keno Grid */
         .keno-grid {
             display: grid;
             grid-template-columns: repeat(10, 1fr);
-            gap: 5px;
-            margin: 15px 0;
+            gap: 4px;
+            margin-bottom: 15px;
         }
-        .keno-ball {
-            background-color: #0f172a;
-            color: #cbd5e1;
-            padding: 10px 0;
-            font-size: 14px;
-            border-radius: 4px;
-            border: 1px solid #334155;
-            cursor: pointer;
-        }
-        .keno-ball.selected {
-            background-color: #f59e0b;
-            color: white;
-            font-weight: bold;
-            border-color: #d97706;
-        }
-        .btn-bet {
-            background-color: #0284c7;
-            color: white;
-            padding: 12px;
-            font-size: 16px;
-            border: none;
+        .ball {
+            background: #334155;
+            color: #f8fafc;
             border-radius: 6px;
-            cursor: pointer;
-            width: 100%;
+            padding: 8px 0;
+            font-size: 12px;
             font-weight: bold;
-            margin-top: 10px;
+            text-align: center;
+            cursor: pointer;
+            user-select: none;
         }
-        .btn-bet:hover {
-            background-color: #0ea5e9;
+        .ball.selected {
+            background: #f59e0b;
+            color: #000;
         }
-        /* የሞዳል (Popup) መስኮት ዲዛይን */
+        .ball.drawn {
+            background: #10b981;
+            color: #fff;
+        }
+
+        /* Betting Control Bar */
+        .bet-controls {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .btn-ctrl {
+            background: #334155;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .bet-amount {
+            flex-grow: 1;
+            text-align: center;
+            font-weight: bold;
+            color: #10b981;
+            font-size: 16px;
+        }
+
+        /* Main BET Button */
+        .btn-main-bet {
+            width: 100%;
+            background: #10b981;
+            color: #000;
+            font-weight: bold;
+            font-size: 18px;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+        .status-msg {
+            color: #f59e0b;
+            font-size: 13px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        /* Tabs (GAME, HISTORY, RESULTS, STATS) */
+        .nav-tabs {
+            display: flex;
+            justify-content: space-around;
+            border-top: 1px solid #334155;
+            padding-top: 10px;
+        }
+        .tab-btn {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .tab-btn.active {
+            color: #10b981;
+        }
+
+        /* Modal / Deposit Popup */
         .modal {
             display: none;
             position: fixed;
-            z-index: 10;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.7);
+            z-index: 100;
+            left: 0; top: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.8);
             justify-content: center;
             align-items: center;
         }
         .modal-content {
             background-color: #1e293b;
-            padding: 25px;
+            padding: 20px;
             border-radius: 12px;
             width: 85%;
             max-width: 320px;
             border: 1px solid #334155;
             text-align: center;
         }
-        input {
+        .modal input {
             width: 90%;
-            padding: 12px;
+            padding: 10px;
             font-size: 16px;
             margin: 15px 0;
             border-radius: 6px;
@@ -117,96 +197,158 @@
             color: white;
             text-align: center;
         }
-        .btn-submit {
+        .btn-modal-ok {
             background-color: #0284c7;
             color: white;
             padding: 10px 15px;
             border: none;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 15px;
             width: 100%;
             font-weight: bold;
         }
         .close-btn {
             color: #aaa;
             float: right;
-            font-size: 24px;
+            font-size: 20px;
             font-weight: bold;
             cursor: pointer;
-        }
-        .close-btn:hover {
-            color: white;
         }
     </style>
 </head>
 <body>
 
-    <!-- ከጌሙ በላይ የሚገኘው የባላንስ እና የዲፖዚት ማጠናቀቂያ ባር -->
-    <div class="header-bar">
-        <div class="balance-info">ባላንስ: <span id="userBalance">0</span> ETB</div>
-        <button class="btn-deposit" onclick="openDepositModal()">Deposit (ባላንስ መሙያ)</button>
-    </div>
-
-    <!-- ዋናው የኬኖ ጨዋታ ገጽ -->
-    <div class="game-container">
-        <h2>Beteseb Plus Keno</h2>
-        <p style="font-size: 13px; color: #94a3b8;">ቁጥሮችን በመምረጥ ጨዋታውን ይጫወቱ!</p>
-
-        <!-- የኬኖ ቁጥሮች (1 እስከ 80) -->
-        <div class="keno-grid" id="kenoGrid">
-            <!-- በ JavaScript በኩል ይሞላል -->
+    <div class="main-card">
+        <!-- Top Balance & Deposit Bar -->
+        <div class="top-bar">
+            <div class="balance-box">ባላንስ: <span id="userBalance">0</span> ETB</div>
+            <button class="btn-deposit-top" onclick="openDepositModal()">Deposit</button>
         </div>
 
-        <button class="btn-bet" onclick="placeBet()">ውርርድ አድርግ (BET)</button>
+        <!-- Timer Header -->
+        <div class="game-header">
+            <div class="draw-id">DRAW #1024</div>
+            <div class="timer-box">⏱️ <span id="timer">00:45</span></div>
+        </div>
+
+        <!-- 80 Keno Balls Grid -->
+        <div class="keno-grid" id="kenoGrid"></div>
+
+        <!-- Bet Control Bar -->
+        <div class="bet-controls">
+            <button class="btn-ctrl" onclick="changeBet(-5)">-</button>
+            <div class="bet-amount"><span id="betVal">10</span> ETB</div>
+            <button class="btn-ctrl" onclick="changeBet(5)">+</button>
+            <button class="btn-ctrl" onclick="quickPick()">🎲 Quick</button>
+            <button class="btn-ctrl" onclick="clearSelection()">🗑️</button>
+        </div>
+
+        <!-- Main BET Button -->
+        <button class="btn-main-bet" onclick="placeBet()">ቲኬቱን አስገባ (BET)</button>
+        <div class="status-msg">አዲስ ዙር ጀምሯል! ቁጥሮችን ይምረጡ</div>
+
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="tab-btn active">▶ GAME</button>
+            <button class="tab-btn">🕒 HISTORY</button>
+            <button class="tab-btn">✔️ RESULTS</button>
+            <button class="tab-btn">📊 STATS</button>
+        </div>
     </div>
 
-    <!-- የገንዘብ መጠን የሚጽፉበት ፖፕአፕ መስኮት (Modal) -->
+    <!-- Deposit Popup Window -->
     <div id="depositModal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeDepositModal()">&times;</span>
-            <h3>የቴሌብር ባላንስ መሙያ</h3>
-            <p style="font-size: 13px; color: #94a3b8;">እባክዎ ማስገባት የሚፈልጉትን የብር መጠን ይፃፉ፡</p>
+            <h3 style="color:#38bdf8;">የቴሌብር ባላንስ መሙያ</h3>
+            <p style="font-size: 12px; color: #94a3b8; margin-top: 5px;">ማስገባት የሚፈልጉትን የብር መጠን ይፃፉ፡</p>
             
-            <input type="number" id="amountInput" placeholder="ለምሳሌ: 50" value="50">
+            <input type="number" id="amountInput" placeholder="መጠን" value="50">
             <br>
-            <button class="btn-submit" onclick="submitDeposit()">OK (አረጋግጥ)</button>
+            <button class="btn-modal-ok" onclick="submitDeposit()">OK (አረጋግጥ)</button>
         </div>
     </div>
 
     <script>
-        // 1 እስከ 80 ያሉትን የኬኖ ኳሶች በግሪዱ ውስጥ መሙላት
+        // 1. Generate 80 Balls
         const grid = document.getElementById('kenoGrid');
+        let selectedBalls = [];
+        
         for (let i = 1; i <= 80; i++) {
             const ball = document.createElement('div');
-            ball.className = 'keno-ball';
+            ball.className = 'ball';
             ball.innerText = i;
-            ball.onclick = function() {
-                ball.classList.toggle('selected');
-            };
+            ball.onclick = () => toggleBall(ball, i);
             grid.appendChild(ball);
         }
 
-        // ፖፕአፕ መስኮቱን መክፈቻ
+        function toggleBall(element, num) {
+            if (element.classList.contains('selected')) {
+                element.classList.remove('selected');
+                selectedBalls = selectedBalls.filter(n => n !== num);
+            } else {
+                if (selectedBalls.length < 10) {
+                    element.classList.add('selected');
+                    selectedBalls.push(num);
+                } else {
+                    alert("ከ 10 ቁጥር በላይ መምረጥ አይችሉም!");
+                }
+            }
+        }
+
+        function clearSelection() {
+            selectedBalls = [];
+            document.querySelectorAll('.ball').forEach(b => b.classList.remove('selected'));
+        }
+
+        function quickPick() {
+            clearSelection();
+            const balls = document.querySelectorAll('.ball');
+            while (selectedBalls.length < 5) {
+                const rand = Math.floor(Math.random() * 80) + 1;
+                if (!selectedBalls.includes(rand)) {
+                    selectedBalls.push(rand);
+                    balls[rand - 1].classList.add('selected');
+                }
+            }
+        }
+
+        // 2. Bet Amount Controls
+        let currentBet = 10;
+        function changeBet(val) {
+            currentBet = Math.max(5, currentBet + val);
+            document.getElementById('betVal').innerText = currentBet;
+        }
+
+        // 3. Timer Countdown
+        let timeLeft = 45;
+        setInterval(() => {
+            if (timeLeft > 0) {
+                timeLeft--;
+                let sec = timeLeft < 10 ? "0" + timeLeft : timeLeft;
+                document.getElementById('timer').innerText = `00:${sec}`;
+            } else {
+                timeLeft = 45; // Reset timer for new round
+            }
+        }, 1000);
+
+        // 4. Deposit Functions
         function openDepositModal() {
             document.getElementById('depositModal').style.display = 'flex';
         }
 
-        // ፖፕአፕ መስኮቱን መዘጊያ
         function closeDepositModal() {
             document.getElementById('depositModal').style.display = 'none';
         }
 
-        // OK ሲሉ የሚሰራው እና የቴሌብር መረጃዎችን የሚያሳየው ፌንክሽን
         function submitDeposit() {
             const amount = document.getElementById('amountInput').value;
-            
             if (!amount || amount <= 0) {
                 alert("እባክዎ ትክክለኛ የብር መጠን ያስገቡ!");
                 return;
             }
 
-            // የቴሌብር መረጃዎችን ማሳየት
             alert("የጠየቁት የብር መጠን: " + amount + " ETB\n" +
                   "-----------------------------------\n" +
                   " ገንዘብ የሚላክበት የቴሌብር አድራሻ:\n" +
@@ -217,12 +359,9 @@
 
             closeDepositModal();
 
-            // ሰርቨር ላይ ባላንስ የማዘመን ጥያቄ መላክ
             fetch('http://127.0.0.1:8000/api/telebirr-webhook', { 
                 method: 'POST', 
-                headers: { 
-                    'Content-Type': 'application/json' 
-                }, 
+                headers: { 'Content-Type': 'application/json' }, 
                 body: JSON.stringify({
                     outTradeNo: "TXN_" + Date.now(), 
                     totalAmount: amount.toString(), 
@@ -230,20 +369,21 @@
                     status: "COMPLETED" 
                 }) 
             })
-            .then(response => response.json()) 
-            .then(data => { 
-                if (data.status === "success") { 
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "success") {
                     document.getElementById('userBalance').innerText = amount;
-                    alert("የቴሌብር ባላንስ በተሳካ ሁኔታ ተሞልቷል!"); 
                 }
             })
-            .catch(error => {
-                console.error('Error:', error);
-            });
+            .catch(err => console.error(err));
         }
 
         function placeBet() {
-            alert("ውርርዱ ተቀባይነት አግኝቷል! መልካም እድል!");
+            if (selectedBalls.length === 0) {
+                alert("እባክዎ አስቀድመው ቁጥሮችን ይምረጡ!");
+                return;
+            }
+            alert(`ውርርዱ በ ${currentBet} ETB ተይዟል! የመረጧቸው ቁጥሮች: ${selectedBalls.join(', ')}`);
         }
     </script>
 </body>
