@@ -25,6 +25,7 @@
             border-radius: 16px;
             padding: 15px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            margin-bottom: 30px;
         }
         .top-bar {
             display: flex;
@@ -79,8 +80,8 @@
             background: #334155;
             color: #f8fafc;
             border-radius: 6px;
-            padding: 8px 0;
-            font-size: 12px;
+            padding: 7px 0;
+            font-size: 11px;
             font-weight: bold;
             text-align: center;
             cursor: pointer;
@@ -93,11 +94,6 @@
         .ball.drawn {
             background: #10b981 !important;
             color: #fff !important;
-        }
-        .ball.matched {
-            background: #ef4444 !important;
-            color: #fff !important;
-            font-weight: bold;
         }
         .bet-controls {
             display: flex;
@@ -304,7 +300,6 @@
         let historyData = [];
         let resultsData = [];
 
-        // 1. Render Keno Grid
         const grid = document.getElementById('kenoGrid');
         function initGrid() {
             grid.innerHTML = '';
@@ -338,7 +333,6 @@
             document.querySelectorAll('.ball').forEach(b => {
                 b.classList.remove('selected');
                 b.classList.remove('drawn');
-                b.classList.remove('matched');
             });
         }
 
@@ -358,7 +352,7 @@
             document.getElementById('betVal').innerText = currentBet;
         }
 
-        // 2. Countdown and Automatic Draw Logic
+        // Timer and Round Draw Logic
         setInterval(() => {
             if (timeLeft > 0) {
                 timeLeft--;
@@ -377,7 +371,6 @@
                 if (!drawnNumbers.includes(r)) drawnNumbers.push(r);
             }
 
-            // Highlight drawn balls on board
             document.querySelectorAll('.ball').forEach(b => {
                 let val = parseInt(b.innerText);
                 if (drawnNumbers.includes(val)) {
@@ -385,13 +378,10 @@
                 }
             });
 
-            // Process Active Bets
             let roundWinAmount = 0;
             activeBets.forEach(bet => {
                 totalGames++;
                 let matches = bet.numbers.filter(n => drawnNumbers.includes(n));
-                
-                // 20% Chance / 2 out of 10 wins logic
                 let isWin = (totalGames % 10 === 2 || totalGames % 10 === 7 || matches.length >= 2);
                 if (isWin) {
                     totalWins++;
@@ -412,4 +402,98 @@
             updateResultsUI();
             updateStatsUI();
 
-            // Prepare for
+            setTimeout(() => {
+                currentDrawNum++;
+                document.getElementById('drawId').innerText = `DRAW #${currentDrawNum}`;
+                betsThisRound = 0;
+                activeBets = [];
+                clearSelection();
+                document.getElementById('statusMsg').innerText = "አዲስ ዙር ጀምሯል! ቁጥሮችን ይምረጡ";
+            }, 3000);
+        }
+
+        function placeBet() {
+            if (userBalance <= 0 || userBalance < currentBet) {
+                alert("ባላንስዎ በቂ አይደለም! እባክዎ ከላይ ያለውን 'Deposit' በመንካት ባላንስ ይሙሉ (0980306278 - henok)።");
+                openDepositModal();
+                return;
+            }
+            if (selectedBalls.length === 0) {
+                alert("እባክዎ አስቀድመው ቁጥሮችን ይምረጡ!");
+                return;
+            }
+            if (betsThisRound >= maxBetsPerRound) {
+                alert("በዚህ ዙር ሊያደርጉ የሚችሉት ከፍተኛው የውርርድ ብዛት (5 ጊዜ) አልቋል!");
+                return;
+            }
+
+            userBalance -= currentBet;
+            document.getElementById('userBalance').innerText = userBalance;
+            betsThisRound++;
+
+            activeBets.push({
+                amount: currentBet,
+                numbers: [...selectedBalls]
+            });
+
+            historyData.unshift(`ውርርድ #${betsThisRound}: ${currentBet} ETB [${selectedBalls.join(', ')}]`);
+            updateHistoryUI();
+
+            alert(`ውርርድዎ ተቀብሏል (${betsThisRound}/5)! እጣው እስኪወጣ ይጠብቁ።`);
+            clearSelection();
+        }
+
+        function switchTab(viewId, btn) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active-tab'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active-tab');
+            btn.classList.add('active');
+        }
+
+        function updateHistoryUI() {
+            const list = document.getElementById('historyList');
+            list.innerHTML = historyData.map(h => `<div class="history-item">• ${h}</div>`).join('');
+        }
+
+        function updateResultsUI() {
+            const list = document.getElementById('resultsList');
+            list.innerHTML = resultsData.map(r => `<div class="result-item">✔️ ${r}</div>`).join('');
+        }
+
+        function updateStatsUI() {
+            document.getElementById('statTotalGames').innerText = totalGames;
+            document.getElementById('statWins').innerText = totalWins;
+        }
+
+        function openDepositModal() {
+            document.getElementById('depositModal').style.display = 'flex';
+        }
+
+        function closeDepositModal() {
+            document.getElementById('depositModal').style.display = 'none';
+        }
+
+        function submitDeposit() {
+            const amount = document.getElementById('amountInput').value;
+            if (!amount || amount <= 0) {
+                alert("እባክዎ ትክክለኛ የብር መጠን ያስገቡ!");
+                return;
+            }
+
+            alert("የጠየቁት የብር መጠን: " + amount + " ETB\n" +
+                  "-----------------------------------\n" +
+                  " ገንዘብ የሚላክበት የቴሌብር አድራሻ:\n" +
+                  " ስም: henok\n" +
+                  " ስልክ ቁጥር: 0980306278\n" +
+                  "-----------------------------------\n" +
+                  "እባክዎ ገንዘቡን ከላኩ በኋላ OK ይበሉ!");
+
+            closeDepositModal();
+
+            userBalance += Number(amount);
+            document.getElementById('userBalance').innerText = userBalance;
+            alert("የቴሌብር ባላንስ በተሳካ ሁኔታ ተሞልቷል!");
+        }
+    </script>
+</body>
+    </html>
