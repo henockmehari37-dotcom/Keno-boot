@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ras Bet - Games Lobby</title>
+  <title>Ras Bet - Games Lobby with Playable Keno</title>
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <style>
@@ -16,6 +16,7 @@
       --text-gray: #9aa8b6;
       --nav-bg: #091a24;
       --border-color: #1e3342;
+      --gold-accent: #ffb703;
     }
 
     * {
@@ -200,6 +201,7 @@
       align-items: center;
       text-decoration: none;
       color: var(--text-white);
+      cursor: pointer;
     }
 
     .game-thumb {
@@ -232,7 +234,7 @@
       width: 100%;
     }
 
-    /* JetX Custom Card Styling */
+    /* Custom Game Badges */
     .bg-jetx {
       background: linear-gradient(180deg, #111 0%, #3a3000 100%);
       color: #ffe600;
@@ -241,12 +243,20 @@
       font-style: italic;
     }
 
-    /* Aviator Custom Card Styling */
     .bg-aviator {
       background: linear-gradient(180deg, #600 0%, #200 100%);
       color: #fff;
       font-weight: bold;
       font-size: 18px;
+    }
+
+    .bg-keno {
+      background: linear-gradient(135deg, #02c39a 0%, #0077b6 100%);
+      color: #ffffff;
+      font-weight: 900;
+      font-size: 22px;
+      letter-spacing: 1px;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
     }
 
     /* Floating Cashback Button */
@@ -300,6 +310,113 @@
 
     .nav-item i {
       font-size: 18px;
+    }
+
+    /* --- KENO GAME MODAL POPUP --- */
+    .keno-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 480px;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.95);
+      z-index: 2000;
+      flex-direction: column;
+      padding: 15px;
+      overflow-y: auto;
+    }
+
+    .keno-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 10px;
+      margin-bottom: 15px;
+    }
+
+    .keno-header h2 {
+      color: var(--gold-accent);
+      font-size: 20px;
+    }
+
+    .close-keno {
+      font-size: 24px;
+      cursor: pointer;
+      color: #fff;
+    }
+
+    .keno-grid {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 6px;
+      margin-bottom: 15px;
+    }
+
+    .keno-num {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-white);
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .keno-num.selected {
+      background-color: var(--accent-purple);
+      border-color: #fff;
+    }
+
+    .keno-num.drawn-hit {
+      background-color: #2ec4b6 !important;
+      color: #fff;
+      animation: pulse 0.5s ease-in-out;
+    }
+
+    .keno-num.drawn-miss {
+      background-color: #e63946 !important;
+      color: #fff;
+    }
+
+    .keno-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background-color: var(--card-bg);
+      padding: 15px;
+      border-radius: 10px;
+    }
+
+    .keno-btn {
+      background: var(--purple-gradient);
+      color: #fff;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .keno-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .keno-status {
+      text-align: center;
+      font-size: 14px;
+      color: var(--gold-accent);
+      margin-top: 10px;
+      min-height: 20px;
     }
   </style>
 </head>
@@ -356,53 +473,61 @@
 
   <!-- Game Cards Grid -->
   <div class="games-grid">
-    <!-- Game 1 -->
-    <a href="#" class="game-card">
+    <!-- Game 1: JetX -->
+    <div class="game-card">
       <div class="game-thumb bg-jetx">
         <span>JetX</span>
       </div>
       <span class="game-title">JetX</span>
-    </a>
+    </div>
 
-    <!-- Game 2 -->
-    <a href="#" class="game-card">
+    <!-- Game 2: Multi Hot 5 -->
+    <div class="game-card">
       <div class="game-thumb">
         <img src="https://via.placeholder.com/150/006633/ffffff?text=MULTI+HOT+5" alt="Multi Hot 5" />
       </div>
       <span class="game-title">Multi Hot 5</span>
-    </a>
+    </div>
 
-    <!-- Game 3 -->
-    <a href="#" class="game-card">
+    <!-- Game 3: Fortune Coins 2 -->
+    <div class="game-card">
       <div class="game-thumb">
         <img src="https://via.placeholder.com/150/cc9900/ffffff?text=FORTUNE+COINS" alt="Fortune Coins 2" />
       </div>
       <span class="game-title">Fortune Coins 2</span>
-    </a>
+    </div>
 
-    <!-- Game 4 -->
-    <a href="#" class="game-card">
+    <!-- Game 4: Multi Hot 5 Burn Wilds -->
+    <div class="game-card">
       <div class="game-thumb">
         <img src="https://via.placeholder.com/150/004433/ffffff?text=BURNING+WILD" alt="Multi Hot 5 Burn Wilds" />
       </div>
       <span class="game-title">Multi Hot 5 Bu...</span>
-    </a>
+    </div>
 
-    <!-- Game 5 -->
-    <a href="#" class="game-card">
+    <!-- Game 5: Aviator -->
+    <div class="game-card">
       <div class="game-thumb bg-aviator">
         <span>Aviator</span>
       </div>
       <span class="game-title">Aviator</span>
-    </a>
+    </div>
 
-    <!-- Game 6 -->
-    <a href="#" class="game-card">
+    <!-- Game 6: Chicken Road 2 -->
+    <div class="game-card">
       <div class="game-thumb">
         <img src="https://via.placeholder.com/150/990000/ffffff?text=CHICKEN+ROAD" alt="Chicken Road 2" />
       </div>
       <span class="game-title">Chicken Road 2</span>
-    </a>
+    </div>
+
+    <!-- Game 7: KENO (ተጨማሪ) -->
+    <div class="game-card" onclick="openKenoGame()">
+      <div class="game-thumb bg-keno">
+        <span>KENO</span>
+      </div>
+      <span class="game-title">Keno Classic</span>
+    </div>
   </div>
 
   <!-- Floating Cashback Button -->
@@ -440,5 +565,113 @@
     </a>
   </div>
 
+  <!-- KENO PLAYABLE MODAL POPUP -->
+  <div class="keno-modal" id="kenoModal">
+    <div class="keno-header">
+      <h2><i class="fa-solid fa-ticket"></i> RAS KENO</h2>
+      <span class="close-keno" onclick="closeKenoGame()">&times;</span>
+    </div>
+
+    <p style="font-size: 12px; color: var(--text-gray); margin-bottom: 10px; text-align: center;">
+      እስከ 5 ቁጥሮችን ይምረጡና "START DRAW" የሚለውን ይጫኑ!
+    </p>
+
+    <!-- Keno Numbers Grid (1 - 40) -->
+    <div class="keno-grid" id="kenoGrid"></div>
+
+    <div class="keno-controls">
+      <button class="keno-btn" id="playBtn" onclick="playKeno()" disabled>PLAY KENO</button>
+      <button class="btn-collapse" onclick="resetKeno()" style="padding: 10px;">Clear Selection</button>
+      <div class="keno-status" id="kenoStatus">ቁጥር ይምረጡ (0/5)</div>
+    </div>
+  </div>
+
+  <script>
+    const MAX_SELECTION = 5;
+    let selectedNumbers = [];
+
+    // Keno Grid መፍጠር (1 - 40)
+    const kenoGrid = document.getElementById('kenoGrid');
+    for (let i = 1; i <= 40; i++) {
+      const btn = document.createElement('div');
+      btn.classList.add('keno-num');
+      btn.innerText = i;
+      btn.onclick = () => toggleNumber(i, btn);
+      kenoGrid.appendChild(btn);
+    }
+
+    function toggleNumber(num, el) {
+      if (selectedNumbers.includes(num)) {
+        selectedNumbers = selectedNumbers.filter(n => n !== num);
+        el.classList.remove('selected');
+      } else {
+        if (selectedNumbers.length < MAX_SELECTION) {
+          selectedNumbers.push(num);
+          el.classList.add('selected');
+        }
+      }
+      updateKenoUI();
+    }
+
+    function updateKenoUI() {
+      const status = document.getElementById('kenoStatus');
+      const playBtn = document.getElementById('playBtn');
+      status.innerText = `ቁጥር ይምረጡ (${selectedNumbers.length}/${MAX_SELECTION})`;
+      playBtn.disabled = selectedNumbers.length === 0;
+    }
+
+    function openKenoGame() {
+      document.getElementById('kenoModal').style.display = 'flex';
+    }
+
+    function closeKenoGame() {
+      document.getElementById('kenoModal').style.display = 'none';
+      resetKeno();
+    }
+
+    function resetKeno() {
+      selectedNumbers = [];
+      document.querySelectorAll('.keno-num').forEach(el => {
+        el.className = 'keno-num';
+      });
+      updateKenoUI();
+    }
+
+    function playKeno() {
+      if (selectedNumbers.length === 0) return;
+
+      const playBtn = document.getElementById('playBtn');
+      playBtn.disabled = true;
+
+      // 8 የዕድል ቁጥሮች በዘፈቀደ ማውጣት
+      let drawn = [];
+      while (drawn.length < 8) {
+        let rand = Math.floor(Math.random() * 40) + 1;
+        if (!drawn.includes(rand)) drawn.push(rand);
+      }
+
+      // ውጤቱን ማሳየት
+      document.querySelectorAll('.keno-num').forEach((el, idx) => {
+        const num = idx + 1;
+        el.classList.remove('drawn-hit', 'drawn-miss');
+        
+        if (drawn.includes(num)) {
+          if (selectedNumbers.includes(num)) {
+            el.classList.add('drawn-hit');
+          } else {
+            el.classList.add('drawn-miss');
+          }
+        }
+      });
+
+      // የተመቱ ቁጥሮችን መቁጠር
+      const hits = selectedNumbers.filter(n => drawn.includes(n)).length;
+      document.getElementById('kenoStatus').innerText = `ውጤት፡ ${hits} ቁጥሮች ተመተዋል! 🎉`;
+      
+      setTimeout(() => {
+        playBtn.disabled = false;
+      }, 1500);
+    }
+  </script>
 </body>
-</html>
+  </html>
