@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ras Bet - Animated Fast Keno</title>
+  <title>Ras Bet - Fast Keno & Bingo Edition</title>
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <style>
@@ -17,6 +17,7 @@
       --nav-bg: #091a24;
       --border-color: #1e3342;
       --keno-green: #2ecc71;
+      --bingo-gold: #ffb703;
     }
 
     * {
@@ -238,6 +239,16 @@
       line-height: 1.1;
     }
 
+    .bg-bingo {
+      background: linear-gradient(135deg, #ff007f, #7928ca);
+      color: #fff;
+      font-weight: 900;
+      font-size: 18px;
+      text-align: center;
+      line-height: 1.1;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+    }
+
     /* Floating Cashback */
     .floating-cashback {
       position: fixed;
@@ -291,8 +302,8 @@
       font-size: 18px;
     }
 
-    /* --- FAST KENO EXACT UI MODAL --- */
-    .keno-modal-overlay {
+    /* --- COMMON MODAL OVERLAY STYLES --- */
+    .game-modal-overlay {
       display: none;
       position: fixed;
       top: 0;
@@ -307,7 +318,7 @@
       overflow-y: auto;
     }
 
-    .keno-top-header {
+    .modal-top-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -336,7 +347,7 @@
       cursor: pointer;
     }
 
-    .keno-sub-header {
+    .modal-sub-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -347,7 +358,7 @@
       border-bottom: 1px solid #1a2d3b;
     }
 
-    /* Keno Banner Area (Timer & Choose Numbers) */
+    /* --- FAST KENO STYLES --- */
     .keno-hero-banner {
       background: radial-gradient(circle at center, #1b3644 0%, #0c1821 100%);
       padding: 15px;
@@ -394,7 +405,6 @@
       font-weight: 600;
     }
 
-    /* Drawing Animation Display Area (Screenshot 2) */
     .drawing-animation-area {
       display: none;
       flex-direction: column;
@@ -442,7 +452,6 @@
       border: 1px solid #2ecc71;
     }
 
-    /* 80 Grid */
     .keno-grid-80 {
       display: grid;
       grid-template-columns: repeat(10, 1fr);
@@ -472,7 +481,6 @@
       box-shadow: 0 0 6px #2ecc71;
     }
 
-    /* Controls Panel */
     .bet-control-bar {
       padding: 10px;
       background-color: #12212b;
@@ -541,8 +549,7 @@
       cursor: not-allowed;
     }
 
-    /* Bottom Sub Navigation */
-    .keno-sub-nav {
+    .sub-nav {
       display: flex;
       justify-content: space-around;
       background: #0d1922;
@@ -567,7 +574,6 @@
       padding-bottom: 3px;
     }
 
-    /* History Bets List */
     .bets-history-list {
       padding: 10px;
       display: flex;
@@ -619,293 +625,65 @@
       color: #f1c40f;
       font-weight: bold;
     }
-  </style>
-</head>
-<body>
 
-  <!-- Top Banner -->
-  <div class="top-banner">
-    <div class="banner-top-bar">
-      <span><i class="fa-solid fa-xmark"></i> Close</span>
-      <div>
-        <i class="fa-solid fa-chevron-down"></i>
-        <i class="fa-solid fa-ellipsis-vertical" style="margin-left: 10px;"></i>
-      </div>
-    </div>
-    <div class="banner-content">
-      <div class="banner-text">
-        <h3>ይመዝገቡና ያሸንፉ!</h3>
-        <p style="font-size: 11px; opacity: 0.9;">ደስታን እና አሁኑኑ ይህንን ተጨዋች ይግጠሙ!</p>
-      </div>
-      <button class="btn-click-here">CLICK HERE</button>
-    </div>
-  </div>
-
-  <!-- Category Tabs -->
-  <div class="categories-tabs">
-    <div class="tab active"><i class="fa-solid fa-gamepad"></i> Lobby</div>
-    <div class="tab"><i class="fa-solid fa-dice"></i> Slot</div>
-    <div class="tab"><i class="fa-solid fa-rocket"></i> Crash games</div>
-    <div class="tab"><i class="fa-solid fa-trophy"></i> Live</div>
-  </div>
-
-  <!-- Search & Provider Filters -->
-  <div class="search-container">
-    <div class="search-box">
-      <i class="fa-solid fa-magnifying-glass" style="color: var(--text-gray);"></i>
-      <input type="text" placeholder="Search games..." />
-    </div>
-    <div class="filter-box">
-      <i class="fa-solid fa-sliders"></i>
-      <span>All Providers</span>
-    </div>
-  </div>
-
-  <!-- Ras Bet Trending Section -->
-  <div class="section-header">
-    <div class="section-title">Ras Bet Trending</div>
-    <button class="btn-collapse">Collapse</button>
-  </div>
-
-  <!-- Game Cards Grid -->
-  <div class="games-grid">
-    <!-- JetX -->
-    <div class="game-card">
-      <div class="game-thumb bg-jetx"><span>JetX</span></div>
-      <span class="game-title">JetX</span>
-    </div>
-
-    <!-- Multi Hot 5 -->
-    <div class="game-card">
-      <div class="game-thumb">
-        <img src="https://via.placeholder.com/150/006633/ffffff?text=MULTI+HOT+5" alt="Multi Hot 5" />
-      </div>
-      <span class="game-title">Multi Hot 5</span>
-    </div>
-
-    <!-- Fortune Coins 2 -->
-    <div class="game-card">
-      <div class="game-thumb">
-        <img src="https://via.placeholder.com/150/cc9900/ffffff?text=FORTUNE+COINS" alt="Fortune Coins 2" />
-      </div>
-      <span class="game-title">Fortune Coins 2</span>
-    </div>
-
-    <!-- Multi Hot 5 Burn Wilds -->
-    <div class="game-card">
-      <div class="game-thumb">
-        <img src="https://via.placeholder.com/150/004433/ffffff?text=BURNING+WILD" alt="Multi Hot 5 Burn Wilds" />
-      </div>
-      <span class="game-title">Multi Hot 5 Bu...</span>
-    </div>
-
-    <!-- Aviator -->
-    <div class="game-card">
-      <div class="game-thumb bg-aviator"><span>Aviator</span></div>
-      <span class="game-title">Aviator</span>
-    </div>
-
-    <!-- FAST KENO -->
-    <div class="game-card" onclick="openFastKenoModal()">
-      <div class="game-thumb bg-fastkeno">
-        <span>FAST<br>KENO</span>
-      </div>
-      <span class="game-title">Fast Keno</span>
-    </div>
-  </div>
-
-  <!-- Floating Cashback -->
-  <div class="floating-cashback">
-    <i class="fa-solid fa-gift"></i>
-    <span>Check Cashback</span>
-    <i class="fa-solid fa-chevron-right"></i>
-  </div>
-
-  <!-- Bottom Navigation Bar -->
-  <div class="bottom-nav">
-    <a href="#" class="nav-item active"><i class="fa-solid fa-gamepad"></i><span>Games</span></a>
-    <a href="#" class="nav-item"><i class="fa-solid fa-futbol"></i><span>Sports</span></a>
-    <a href="#" class="nav-item"><i class="fa-solid fa-wallet"></i><span>Wallet</span></a>
-    <a href="#" class="nav-item"><i class="fa-solid fa-gift"></i><span>Promos</span></a>
-    <a href="#" class="nav-item"><i class="fa-regular fa-comment-dots"></i><span>Chat</span></a>
-    <a href="#" class="nav-item"><i class="fa-solid fa-ellipsis"></i><span>More</span></a>
-  </div>
-
-  <!-- ==================== FAST KENO EXACT MODAL ==================== -->
-  <div class="keno-modal-overlay" id="exactKenoModal">
-    <!-- Top Nav Header -->
-    <div class="keno-top-header">
-      <button class="btn-back-link" onclick="closeFastKenoModal()"><i class="fa-solid fa-chevron-left"></i> Back</button>
-      <div style="font-weight: bold; color: #2ecc71;"><span id="userBalanceDisplay">0</span> ETB</div>
-      <button class="btn-deposit-purple">Deposit</button>
-    </div>
-
-    <!-- Sub Header -->
-    <div class="keno-sub-header">
-      <span><i class="fa-solid fa-xmark" onclick="closeFastKenoModal()" style="cursor:pointer;"></i> &nbsp; FAST KENO</span>
-      <span>ID: 893382291</span>
-    </div>
-
-    <!-- Hero / Choose Numbers Area (Screenshot 1) -->
-    <div class="keno-hero-banner" id="heroBanner">
-      <div class="timer-display">00 : 05</div>
-      <div class="choose-box">
-        <div class="circle-icon-badge">
-          <i class="fa-solid fa-hand-pointer" style="color: #000; font-size: 20px;"></i>
-        </div>
-        <div class="choose-text">
-          <h2>Choose 10 numbers</h2>
-          <p>From 1 to 80</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Animated Live Draw Display (Screenshot 2) -->
-    <div class="drawing-animation-area" id="drawAnimationArea">
-      <div class="main-ball" id="currentDrawBall">--</div>
-      <div class="drawn-balls-history" id="drawnBallsHistory"></div>
-      <div style="margin-top: 10px; font-size: 13px; color: #2ecc71; font-weight: bold;">
-        <span id="drawnCount">0</span> / 20 Drawn
-      </div>
-    </div>
-
-    <!-- 80 Grid -->
-    <div class="keno-grid-80" id="grid80Container"></div>
-
-    <!-- Bet Control Panel -->
-    <div class="bet-control-bar">
-      <div class="bet-row">
-        <button class="btn-minus-plus" onclick="adjustBet(-2)">-</button>
-        <div class="bet-val-box" id="betAmountDisplay">2</div>
-        <button class="btn-minus-plus" onclick="adjustBet(2)">+</button>
-        <button class="btn-x2" onclick="multiplyBet(2)">X2</button>
-        <button class="btn-max-bet" onclick="setMaxBet()">MAX</button>
-      </div>
-      <button class="btn-main-bet" id="mainBetBtn" onclick="startKenoGame()" disabled>BET</button>
-    </div>
-
-    <!-- Sub Navigation Tabs -->
-    <div class="keno-sub-nav">
-      <div class="sub-nav-item active"><i class="fa-solid fa-play"></i> GAME</div>
-      <div class="sub-nav-item"><i class="fa-solid fa-rotate-left"></i> HISTORY</div>
-      <div class="sub-nav-item"><i class="fa-solid fa-check"></i> RESULTS</div>
-      <div class="sub-nav-item"><i class="fa-solid fa-chart-simple"></i> STATIST</div>
-    </div>
-
-    <!-- History List -->
-    <div class="bets-history-list" id="ticketsHistoryList">
-      <div class="bet-ticket-card">
-        <div class="ticket-title-bar">
-          <span>7***6</span>
-          <span>Fast Keno</span>
-        </div>
-        <div class="ticket-selected-balls">
-          <div class="mini-num-badge">77</div>
-          <div class="mini-num-badge">79</div>
-        </div>
-        <div class="ticket-status-bar">
-          <span>Bet 2 000</span>
-          <span class="status-waiting">Waiting</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    let betAmount = 2;
-    let selectedNums = [];
-    const maxSelect = 10;
-
-    // Grid Build (1 - 80)
-    const gridContainer = document.getElementById('grid80Container');
-    for (let i = 1; i <= 80; i++) {
-      const btn = document.createElement('div');
-      btn.classList.add('grid-num-btn');
-      btn.innerText = i;
-      btn.onclick = () => toggleSelectNumber(i, btn);
-      gridContainer.appendChild(btn);
+    /* --- BINGO GAME STYLES --- */
+    .bingo-card-container {
+      padding: 15px;
+      background: radial-gradient(circle at center, #2b1055 0%, #0c1821 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
     }
 
-    function openFastKenoModal() {
-      document.getElementById('exactKenoModal').style.display = 'flex';
+    .bingo-header-letters {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      width: 100%;
+      max-width: 320px;
+      gap: 6px;
+      text-align: center;
     }
 
-    function closeFastKenoModal() {
-      document.getElementById('exactKenoModal').style.display = 'none';
+    .bingo-letter {
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--bingo-gold);
+      text-shadow: 0 0 8px rgba(255, 183, 3, 0.6);
     }
 
-    function toggleSelectNumber(num, el) {
-      if (selectedNums.includes(num)) {
-        selectedNums = selectedNums.filter(n => n !== num);
-        el.classList.remove('selected');
-      } else {
-        if (selectedNums.length < maxSelect) {
-          selectedNums.push(num);
-          el.classList.add('selected');
-        }
-      }
-      document.getElementById('mainBetBtn').disabled = selectedNums.length === 0;
+    .bingo-grid-5x5 {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+      width: 100%;
+      max-width: 320px;
     }
 
-    function adjustBet(val) {
-      betAmount = Math.max(2, betAmount + val);
-      document.getElementById('betAmountDisplay').innerText = betAmount;
+    .bingo-cell {
+      background-color: #1b2838;
+      border: 2px solid #34495e;
+      color: #fff;
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      user-select: none;
     }
 
-    function multiplyBet(factor) {
-      betAmount = betAmount * factor;
-      document.getElementById('betAmountDisplay').innerText = betAmount;
+    .bingo-cell.free {
+      background: var(--purple-gradient);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 900;
     }
 
-    function setMaxBet() {
-      betAmount = 2000;
-      document.getElementById('betAmountDisplay').innerText = betAmount;
-    }
-
-    function startKenoGame() {
-      if (selectedNums.length === 0) return;
-
-      // Switch view from Banner to Live Animation
-      document.getElementById('heroBanner').style.display = 'none';
-      document.getElementById('grid80Container').style.display = 'none';
-      const drawArea = document.getElementById('drawAnimationArea');
-      drawArea.style.display = 'flex';
-
-      const mainBall = document.getElementById('currentDrawBall');
-      const drawnHistory = document.getElementById('drawnBallsHistory');
-      const drawnCount = document.getElementById('drawnCount');
-
-      drawnHistory.innerHTML = '';
-      let drawnList = [];
-      let counter = 0;
-
-      const interval = setInterval(() => {
-        counter++;
-        let rand;
-        do {
-          rand = Math.floor(Math.random() * 80) + 1;
-        } while (drawnList.includes(rand));
-
-        drawnList.push(rand);
-        mainBall.innerText = rand;
-        drawnCount.innerText = counter;
-
-        const mini = document.createElement('div');
-        mini.classList.add('drawn-mini-ball');
-        mini.innerText = rand;
-        drawnHistory.appendChild(mini);
-
-        if (counter >= 20) {
-          clearInterval(interval);
-          setTimeout(() => {
-            // Return to Grid view
-            document.getElementById('heroBanner').style.display = 'block';
-            document.getElementById('grid80Container').style.display = 'grid';
-            drawArea.style.display = 'none';
-          }, 3000);
-        }
-      }, 300);
-    }
-  </script>
-</body>
-</html>
+    .bingo-cell.daubed {
+      background: radial-gradient(circle, #ff007f, #b5179e);
+      border-color: #ff9ebb;
+      color: #fff;
+      box-
