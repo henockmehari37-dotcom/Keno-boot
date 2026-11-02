@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ras Bingo - Telegram Mini App</title>
+    <title>Ras Bingo - Admin & User Control</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -17,6 +17,7 @@
             --text-main: #ffffff;
             --text-sub: #9ca3af;
             --border-color: #232d45;
+            --admin-red: #ef4444;
         }
 
         * {
@@ -96,7 +97,19 @@
             cursor: pointer;
         }
 
-        /* Banner Banner */
+        .admin-badge-btn {
+            background: linear-gradient(135deg, #ef4444, #b91c1c);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 12px;
+            cursor: pointer;
+            display: none;
+        }
+
+        /* Promo Banner */
         .promo-banner {
             margin: 12px;
             height: 120px;
@@ -170,12 +183,13 @@
             margin-bottom: 10px;
             display: flex;
             justify-content: space-between;
+            align-items: center;
         }
 
         .stake-selector {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
             margin-bottom: 12px;
         }
 
@@ -183,10 +197,10 @@
             background: #1f2937;
             border: 1px solid var(--border-color);
             color: white;
-            padding: 10px;
+            padding: 8px 4px;
             border-radius: 10px;
             font-weight: bold;
-            font-size: 13px;
+            font-size: 12px;
             cursor: pointer;
             text-align: center;
         }
@@ -233,7 +247,7 @@
             100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
         }
 
-        /* Bingo Arena (Hidden by default) */
+        /* Bingo Arena */
         .bingo-arena {
             display: none;
             flex-direction: column;
@@ -317,6 +331,60 @@
             font-size: 18px;
             cursor: pointer;
             box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        /* Admin Dashboard Panel */
+        .admin-panel {
+            display: none;
+            margin: 0 12px 12px 12px;
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 16px;
+            border: 1px solid var(--admin-red);
+        }
+
+        .admin-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .stat-box {
+            background: #1f2937;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .stat-box h4 {
+            font-size: 11px;
+            color: var(--text-sub);
+            margin-bottom: 4px;
+        }
+
+        .stat-box p {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--accent-yellow);
+        }
+
+        .user-list-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        .user-list-table th, .user-list-table td {
+            padding: 8px;
+            border-bottom: 1px solid var(--border-color);
+            text-align: left;
+        }
+
+        .user-list-table th {
+            color: var(--text-sub);
         }
 
         /* Bottom Nav */
@@ -422,17 +490,17 @@
 </head>
 <body>
 
-    <!-- Auth Modal -->
+    <!-- Auth Modal (ስልክ ቁጥር በመክፈት አካውንት መፍጠሪያ) -->
     <div class="modal-overlay" id="authModal">
         <div class="auth-card">
             <i class="fa-solid fa-gamepad" style="font-size: 40px; color: var(--accent-purple); margin-bottom: 12px;"></i>
             <h3>እንኳን ደህና መጡ!</h3>
-            <p>ለመጫወት እባክዎን ስልክ ቁጥርዎን ያስገቡ</p>
+            <p>ለመጫወት እና አካውንት ለመክፈት ስልክ ቁጥርዎን ያስገቡ</p>
             <div class="input-group">
-                <label>የስልክ ቁጥር</label>
+                <label>የስልክ ቁጥር (Phone Number)</label>
                 <input type="tel" id="phoneInput" placeholder="09........" value="0911223344">
             </div>
-            <button class="auth-btn" onclick="login()">ይግቡ / Login</button>
+            <button class="auth-btn" onclick="loginUser()">ይግቡ / መለያ ይክፈቱ</button>
         </div>
     </div>
 
@@ -445,29 +513,65 @@
                 <span class="balance-amount" id="balance">1000 ETB</span>
             </div>
         </div>
-        <button class="deposit-btn" onclick="alert('የሒሳብ መሙያ አማራጮች፡ Telebirr / Chapa')">Deposit</button>
+        <div style="display: flex; gap: 8px;">
+            <button class="admin-badge-btn" id="adminBtn" onclick="toggleAdminPanel()"><i class="fa-solid fa-shield-halved"></i> Admin Panel</button>
+            <button class="deposit-btn" onclick="depositMoney()">Deposit</button>
+        </div>
     </div>
 
     <!-- Promo Banner -->
     <div class="promo-banner">
         <div class="content">
             <h2>ዝግጁ ናችሁ?</h2>
-            <p>በአዲሱ ሲዝን የበጎ አድራጎት ማዕከል እና ትልቅ BINGO ሽልማቶች!</p>
+            <p>ከ 10 ብር እስከ 1000 ብር የውርርድ አማራጮች እና ትልቅ BINGO ሽልማቶች!</p>
         </div>
     </div>
 
     <!-- Navigation Tabs -->
     <div class="nav-tabs">
-        <div class="nav-tab active"><i class="fa-solid fa-gamepad"></i> Lobby</div>
-        <div class="nav-tab"><i class="fa-solid fa-fire"></i> Popok Gaming</div>
-        <div class="nav-tab"><i class="fa-solid fa-cubes"></i> Slot</div>
+        <div class="nav-tab active" onclick="switchTab('lobby')"><i class="fa-solid fa-gamepad"></i> Lobby</div>
+        <div class="nav-tab" onclick="switchTab('popok')"><i class="fa-solid fa-fire"></i> Popok Gaming</div>
+        <div class="nav-tab" onclick="switchTab('slot')"><i class="fa-solid fa-cubes"></i> Slot</div>
+    </div>
+
+    <!-- Admin Dashboard Panel (የባለቤቱ/የአስተዳዳሪው ሙሉ ስልጣን መቆጣጠሪያ) -->
+    <div class="admin-panel" id="adminPanel">
+        <div class="section-title" style="color: var(--admin-red); font-weight: bold; margin-bottom: 12px;">
+            <span><i class="fa-solid fa-user-gear"></i> የአስተዳዳሪ (Admin) መቆጣጠሪያ ማዕከል</span>
+            <span>ሙሉ ስልጣን (Full Control)</span>
+        </div>
+        <div class="admin-stats">
+            <div class="stat-box">
+                <h4>አጠቃላይ የተመዘገቡ ተጫዋቾች</h4>
+                <p id="adminTotalUsers">1</p>
+            </div>
+            <div class="stat-box">
+                <h4>የጠቅላላ ገቢ (Platform Revenue)</h4>
+                <p id="adminTotalRevenue">0 ETB</p>
+            </div>
+        </div>
+        <div style="font-size: 13px; color: var(--text-sub); margin-bottom: 6px;">የተጠቃሚዎች ዝርዝር እና ሒሳብ መቆጣጠሪያ:</div>
+        <div style="max-height: 150px; overflow-y: auto;">
+            <table class="user-list-table">
+                <thead>
+                    <tr>
+                        <th>ስልክ ቁጥር</th>
+                        <th>ቀሪ ሒሳብ</th>
+                        <th>እርምጃ</th>
+                    </tr>
+                </thead>
+                <tbody id="adminUserTableBody">
+                    <!-- Dynamic populated by JS -->
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <!-- Lobby Content -->
     <div id="lobbyView">
         <div class="setup-card">
             <div class="section-title">
-                <span>የመነሻ ውርርድ ይምረጡ (Stake)</span>
+                <span>የመነሻ ውርርድ ይምረጡ (ከ 10 - 1000 ብር)</span>
                 <div class="live-status">
                     <div class="dot"></div>
                     <span id="playerCount">184</span> ተጫዋቾች
@@ -483,7 +587,7 @@
             </div>
 
             <div style="background: #1f2937; padding: 12px; border-radius: 10px; margin-bottom: 12px; display: flex; justify-content: space-between;">
-                <span style="color: var(--text-sub); font-size: 13px;">የአሸናፊነት ገበታ (Prize Pool):</span>
+                <span style="color: var(--text-sub); font-size: 13px;">የአሸናፊነት ገበታ (Prize Pool - 200 Max):</span>
                 <span style="color: var(--accent-yellow); font-weight: bold;" id="prizePool">1,840 ETB</span>
             </div>
 
@@ -519,45 +623,156 @@
 
     <!-- Bottom Navigation Bar -->
     <div class="bottom-nav">
-        <div class="nav-item active"><i class="fa-solid fa-dice"></i><span>Games</span></div>
-        <div class="nav-item"><i class="fa-solid fa-trophy"></i><span>Sports</span></div>
-        <div class="nav-item"><i class="fa-solid fa-wallet"></i><span>Wallet</span></div>
-        <div class="nav-item"><i class="fa-solid fa-gift"></i><span>Promos</span></div>
-        <div class="nav-item"><i class="fa-solid fa-user"></i><span>Account</span></div>
+        <div class="nav-item active" onclick="switchTab('lobby')"><i class="fa-solid fa-dice"></i><span>Games</span></div>
+        <div class="nav-item" onclick="alert('Sports sections')"><i class="fa-solid fa-trophy"></i><span>Sports</span></div>
+        <div class="nav-item" onclick="depositMoney()"><i class="fa-solid fa-wallet"></i><span>Wallet</span></div>
+        <div class="nav-item" onclick="alert('Promotions & Bonuses')"><i class="fa-solid fa-gift"></i><span>Promos</span></div>
+        <div class="nav-item" onclick="alert('Account Settings')"><i class="fa-solid fa-user"></i><span>Account</span></div>
     </div>
 
     <script>
         let tg = window.Telegram?.WebApp;
         if(tg) tg.expand();
 
+        // Database simulation for users and accounts
+        let usersDB = JSON.parse(localStorage.getItem('bingo_users')) || {};
+        let currentUserPhone = null;
         let currentBalance = 1000;
         let selectedStake = 10;
         let activePlayers = 184;
         let gameInterval = null;
         let calledNumbers = [];
-        let playerBoard = [];
+        let platformRevenue = 0;
 
-        // Simulate Dynamic Player Count (up to 200 players)
+        // Admin Phone Number (የእርስዎ ስልክ ቁጥር እንደ ዋና አስተዳዳሪ ይያዛል - መቀየር ይችላሉ)
+        const ADMIN_PHONE = "0911223344";
+
+        // Dynamic Player Count (እስከ 200 ተጫዋቾች)
         setInterval(() => {
             activePlayers = Math.floor(Math.random() * (200 - 160 + 1)) + 160;
             document.getElementById('playerCount').innerText = activePlayers;
-            document.getElementById('prizePool').innerText = (activePlayers * selectedStake) + " ETB";
+            document.getElementById('prizePool').innerText = (activePlayers * selectedStake).toLocaleString() + " ETB";
         }, 4000);
 
-        function login() {
-            let phone = document.getElementById('phoneInput').value;
+        function loginUser() {
+            let phone = document.getElementById('phoneInput').value.trim();
             if(phone.length < 9) {
                 alert('እባክዎን ትክክለኛ ስልክ ቁጥር ያስገቡ');
                 return;
             }
+
+            currentUserPhone = phone;
+            
+            // አዲስ ተጠቃሚ ከሆነ አካውንት ይከፍትለታል፣ ነባር ከሆነ ያለውን ሒሳብ ይጭናል
+            if(!usersDB[phone]) {
+                usersDB[phone] = {
+                    phone: phone,
+                    balance: 1000, // አዲስ ሲመዘገብ መነሻ ቦነስ 1000 ብር
+                    joinedDate: new Date().toLocaleDateString()
+                };
+            }
+
+            currentBalance = usersDB[phone].balance;
+            document.getElementById('balance').innerText = currentBalance + " ETB";
+            localStorage.setItem('bingo_users', JSON.stringify(usersDB));
+
             document.getElementById('authModal').style.display = 'none';
+
+            // ባለቤቱ መሆኑን አረጋግጦ Admin Panel ን እና ቁልፍን ያሳያል
+            if(phone === ADMIN_PHONE) {
+                document.getElementById('adminBtn').style.display = 'block';
+                updateAdminDashboard();
+            } else {
+                document.getElementById('adminBtn').style.display = 'none';
+            }
+        }
+
+        function saveCurrentBalance() {
+            if(currentUserPhone && usersDB[currentUserPhone]) {
+                usersDB[currentUserPhone].balance = currentBalance;
+                localStorage.setItem('bingo_users', JSON.stringify(usersDB));
+            }
+        }
+
+        function depositMoney() {
+            let amountStr = prompt("ማስገባት የሚፈልጉትን የብር መጠን ያስገቡ (Deposit):", "500");
+            if(amountStr) {
+                let amount = parseFloat(amountStr);
+                if(!isNaN(amount) && amount > 0) {
+                    currentBalance += amount;
+                    document.getElementById('balance').innerText = currentBalance + " ETB";
+                    saveCurrentBalance();
+                    alert(amount + " ETB በተሳካ ሁኔታ አካውንትዎ ላይ ተጫኗል!");
+                    if(currentUserPhone === ADMIN_PHONE) updateAdminDashboard();
+                } else {
+                    alert('እባክዎን ትክክለኛ ቁጥር ያስገቡ');
+                }
+            }
+        }
+
+        function toggleAdminPanel() {
+            let panel = document.getElementById('adminPanel');
+            if(panel.style.display === 'block') {
+                panel.style.display = 'none';
+            } else {
+                panel.style.display = 'block';
+                updateAdminDashboard();
+            }
+        }
+
+        function updateAdminDashboard() {
+            let keys = Object.keys(usersDB);
+            document.getElementById('adminTotalUsers').innerText = keys.length;
+            document.getElementById('adminTotalRevenue').innerText = platformRevenue.toLocaleString() + " ETB";
+
+            let tableHTML = '';
+            keys.forEach(phone => {
+                let u = usersDB[phone];
+                tableHTML += `
+                    <tr>
+                        <td>${u.phone}</td>
+                        <td>${u.balance} ETB</td>
+                        <td>
+                            <button onclick="adminEditBalance('${phone}')" style="background:var(--accent-purple); color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">Edit</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            document.getElementById('adminUserTableBody').innerHTML = tableHTML;
+        }
+
+        function adminEditBalance(phone) {
+            let newBal = prompt(`ለዚህ ተጠቃሚ (${phone}) አዲስ የብር መጠን ያስገቡ:`, usersDB[phone].balance);
+            if(newBal !== null) {
+                let val = parseFloat(newBal);
+                if(!isNaN(val)) {
+                    usersDB[phone].balance = val;
+                    localStorage.setItem('bingo_users', JSON.stringify(usersDB));
+                    if(phone === currentUserPhone) {
+                        currentBalance = val;
+                        document.getElementById('balance').innerText = currentBalance + " ETB";
+                    }
+                    updateAdminDashboard();
+                    alert('ሂሳቡ ተስተካክሏል!');
+                }
+            }
         }
 
         function setStake(amount, element) {
             selectedStake = amount;
             document.querySelectorAll('.stake-btn').forEach(btn => btn.classList.remove('active'));
             element.classList.add('active');
-            document.getElementById('prizePool').innerText = (activePlayers * selectedStake) + " ETB";
+            document.getElementById('prizePool').innerText = (activePlayers * selectedStake).toLocaleString() + " ETB";
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            if(tabName === 'lobby') {
+                document.getElementById('lobbyView').style.display = 'block';
+                document.getElementById('bingoArena').style.display = 'none';
+            } else {
+                alert(tabName + " ጨዋታዎች በዝግጅት ላይ ናቸው!");
+            }
         }
 
         function generateBingoCard() {
@@ -581,9 +796,12 @@
             }
 
             currentBalance -= selectedStake;
+            platformRevenue += (selectedStake * 0.1); // 10% ለአስተዳዳሪው ገቢ ይሆናል
             document.getElementById('balance').innerText = currentBalance + " ETB";
+            saveCurrentBalance();
 
             document.getElementById('lobbyView').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'none';
             document.getElementById('bingoArena').style.display = 'flex';
 
             let card = generateBingoCard();
@@ -601,7 +819,6 @@
             }
             document.getElementById('boardCells').innerHTML = boardHTML;
 
-            // Start Drawing Numbers
             calledNumbers = [];
             document.getElementById('calledCount').innerText = "0/75";
             
@@ -631,15 +848,17 @@
 
         function claimBingo() {
             let markedCells = document.querySelectorAll('.cell.marked').length;
-            if(markedCells >= 4) { // Simplified winning condition check
+            if(markedCells >= 4) {
                 clearInterval(gameInterval);
                 let winAmount = activePlayers * selectedStake;
                 currentBalance += winAmount;
                 document.getElementById('balance').innerText = currentBalance + " ETB";
-                alert(`እንኳን ደስ አለዎት! ${winAmount} ETB አሸንፈዋል!`);
+                saveCurrentBalance();
+                alert(`እንኳን ደስ አለዎት! ${winAmount.toLocaleString()} ETB አሸንፈዋል!`);
                 
                 document.getElementById('bingoArena').style.display = 'none';
                 document.getElementById('lobbyView').style.display = 'block';
+                if(currentUserPhone === ADMIN_PHONE) updateAdminDashboard();
             } else {
                 alert('የተሟላ Bingo የሎትም! ጨዋታውን ይቀጥሉ');
             }
