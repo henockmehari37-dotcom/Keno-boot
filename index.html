@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ras Bingo - Admin & User Control</title>
+    <title>Ras Bingo - Card Selector & Countdown</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -211,6 +211,38 @@
             color: var(--accent-purple);
         }
 
+        /* 200 Bingo Card Selection Grid */
+        .card-number-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            max-height: 150px;
+            overflow-y: auto;
+            background: #111827;
+            padding: 8px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 12px;
+        }
+
+        .card-num-btn {
+            background: #1f2937;
+            border: 1px solid var(--border-color);
+            color: white;
+            padding: 8px 0;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .card-num-btn.selected {
+            background: var(--accent-green);
+            color: white;
+            border-color: #34d399;
+        }
+
         .play-btn {
             width: 100%;
             background: linear-gradient(135deg, #8b5cf6, #ec4899);
@@ -245,6 +277,33 @@
             0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
             70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
             100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        /* Countdown Overlay */
+        .countdown-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(11, 17, 30, 0.95);
+            z-index: 3000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .timer-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 4px solid var(--accent-purple);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 0 25px rgba(139, 92, 246, 0.6);
+            margin-bottom: 20px;
         }
 
         /* Bingo Arena */
@@ -490,6 +549,13 @@
 </head>
 <body>
 
+    <!-- Countdown Screen -->
+    <div class="countdown-overlay" id="countdownOverlay">
+        <div class="timer-circle" id="timerCount">5</div>
+        <h2>ጨዋታው ሊጀምር ነው!</h2>
+        <p style="color: var(--text-sub); margin-top: 6px;">የተመረጠው ካርድ: <span id="selectedCardBadge" style="color: var(--accent-yellow); font-weight: bold;">Card #1</span></p>
+    </div>
+
     <!-- Auth Modal (ስልክ ቁጥር በመክፈት አካውንት መፍጠሪያ) -->
     <div class="modal-overlay" id="authModal">
         <div class="auth-card">
@@ -534,7 +600,7 @@
         <div class="nav-tab" onclick="switchTab('slot')"><i class="fa-solid fa-cubes"></i> Slot</div>
     </div>
 
-    <!-- Admin Dashboard Panel (የባለቤቱ/የአስተዳዳሪው ሙሉ ስልጣን መቆጣጠሪያ) -->
+    <!-- Admin Dashboard Panel -->
     <div class="admin-panel" id="adminPanel">
         <div class="section-title" style="color: var(--admin-red); font-weight: bold; margin-bottom: 12px;">
             <span><i class="fa-solid fa-user-gear"></i> የአስተዳዳሪ (Admin) መቆጣጠሪያ ማዕከል</span>
@@ -561,7 +627,6 @@
                     </tr>
                 </thead>
                 <tbody id="adminUserTableBody">
-                    <!-- Dynamic populated by JS -->
                 </tbody>
             </table>
         </div>
@@ -586,12 +651,21 @@
                 <div class="stake-btn" onclick="setStake(1000, this)">1000 ETB</div>
             </div>
 
+            <!-- Bingo Card Choice Section (1 - 200) -->
+            <div class="section-title">
+                <span>የቢንጎ ካርድ ቁጥር ይምረጡ (1 - 200):</span>
+                <span id="selectedCardText" style="color: var(--accent-green); font-weight: bold;">Card #1</span>
+            </div>
+            <div class="card-number-grid" id="cardNumberGrid">
+                <!-- Javascript will populate 200 card buttons -->
+            </div>
+
             <div style="background: #1f2937; padding: 12px; border-radius: 10px; margin-bottom: 12px; display: flex; justify-content: space-between;">
                 <span style="color: var(--text-sub); font-size: 13px;">የአሸናፊነት ገበታ (Prize Pool - 200 Max):</span>
                 <span style="color: var(--accent-yellow); font-weight: bold;" id="prizePool">1,840 ETB</span>
             </div>
 
-            <button class="play-btn" onclick="startGame()">ጨዋታ ጀምር (Join Match)</button>
+            <button class="play-btn" onclick="startCountdown()">ጨዋታ ጀምር (Join Match)</button>
         </div>
     </div>
 
@@ -634,20 +708,38 @@
         let tg = window.Telegram?.WebApp;
         if(tg) tg.expand();
 
-        // Database simulation for users and accounts
         let usersDB = JSON.parse(localStorage.getItem('bingo_users')) || {};
         let currentUserPhone = null;
         let currentBalance = 1000;
         let selectedStake = 10;
+        let selectedCardNumber = 1;
         let activePlayers = 184;
         let gameInterval = null;
         let calledNumbers = [];
         let platformRevenue = 0;
 
-        // Admin Phone Number (የእርስዎ ስልክ ቁጥር እንደ ዋና አስተዳዳሪ ይያዛል - መቀየር ይችላሉ)
         const ADMIN_PHONE = "0911223344";
 
-        // Dynamic Player Count (እስከ 200 ተጫዋቾች)
+        // Generate 200 Card Number buttons dynamically
+        function initCardSelector() {
+            let grid = document.getElementById('cardNumberGrid');
+            let html = '';
+            for(let i = 1; i <= 200; i++) {
+                let activeClass = (i === 1) ? 'selected' : '';
+                html += `<div class="card-num-btn ${activeClass}" onclick="selectBingoCard(${i}, this)">#${i}</div>`;
+            }
+            grid.innerHTML = html;
+        }
+        initCardSelector();
+
+        function selectBingoCard(num, element) {
+            selectedCardNumber = num;
+            document.querySelectorAll('.card-num-btn').forEach(btn => btn.classList.remove('selected'));
+            element.classList.add('selected');
+            document.getElementById('selectedCardText').innerText = "Card #" + num;
+            document.getElementById('selectedCardBadge').innerText = "Card #" + num;
+        }
+
         setInterval(() => {
             activePlayers = Math.floor(Math.random() * (200 - 160 + 1)) + 160;
             document.getElementById('playerCount').innerText = activePlayers;
@@ -663,11 +755,10 @@
 
             currentUserPhone = phone;
             
-            // አዲስ ተጠቃሚ ከሆነ አካውንት ይከፍትለታል፣ ነባር ከሆነ ያለውን ሒሳብ ይጭናል
             if(!usersDB[phone]) {
                 usersDB[phone] = {
                     phone: phone,
-                    balance: 1000, // አዲስ ሲመዘገብ መነሻ ቦነስ 1000 ብር
+                    balance: 1000,
                     joinedDate: new Date().toLocaleDateString()
                 };
             }
@@ -678,7 +769,6 @@
 
             document.getElementById('authModal').style.display = 'none';
 
-            // ባለቤቱ መሆኑን አረጋግጦ Admin Panel ን እና ቁልፍን ያሳያል
             if(phone === ADMIN_PHONE) {
                 document.getElementById('adminBtn').style.display = 'block';
                 updateAdminDashboard();
@@ -775,6 +865,32 @@
             }
         }
 
+        // Countdown Timer before starting match
+        function startCountdown() {
+            if(currentBalance < selectedStake) {
+                alert('በቂ ሒሳብ የሎትም። እባክዎን Deposit ያድርጉ');
+                return;
+            }
+
+            let countdownOverlay = document.getElementById('countdownOverlay');
+            let timerCount = document.getElementById('timerCount');
+            let count = 5;
+
+            timerCount.innerText = count;
+            countdownOverlay.style.display = 'flex';
+
+            let timer = setInterval(() => {
+                count--;
+                if(count > 0) {
+                    timerCount.innerText = count;
+                } else {
+                    clearInterval(timer);
+                    countdownOverlay.style.display = 'none';
+                    startGame();
+                }
+            }, 1000);
+        }
+
         function generateBingoCard() {
             let card = [];
             let ranges = [[1,15], [16,30], [31,45], [46,60], [61,75]];
@@ -790,13 +906,8 @@
         }
 
         function startGame() {
-            if(currentBalance < selectedStake) {
-                alert('በቂ ሒሳብ የሎትም። እባክዎን Deposit ያድርጉ');
-                return;
-            }
-
             currentBalance -= selectedStake;
-            platformRevenue += (selectedStake * 0.1); // 10% ለአስተዳዳሪው ገቢ ይሆናል
+            platformRevenue += (selectedStake * 0.1);
             document.getElementById('balance').innerText = currentBalance + " ETB";
             saveCurrentBalance();
 
@@ -854,7 +965,7 @@
                 currentBalance += winAmount;
                 document.getElementById('balance').innerText = currentBalance + " ETB";
                 saveCurrentBalance();
-                alert(`እንኳን ደስ አለዎት! ${winAmount.toLocaleString()} ETB አሸንፈዋል!`);
+                alert(`እንኳን ደስ አለዎት! በካርድ #${selectedCardNumber} ${winAmount.toLocaleString()} ETB አሸንፈዋል!`);
                 
                 document.getElementById('bingoArena').style.display = 'none';
                 document.getElementById('lobbyView').style.display = 'block';
